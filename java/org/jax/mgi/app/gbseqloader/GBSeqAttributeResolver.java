@@ -9,9 +9,8 @@ import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.dbutils.DBException;
 import org.jax.mgi.shr.cache.CacheException;
 import org.jax.mgi.shr.cache.KeyNotFoundException;
-import org.jax.mgi.dbs.mgd.lookup.VocabKeyLookup;
 import org.jax.mgi.dbs.mgd.dao.SEQ_SequenceState;
-import org.jax.mgi.dbs.mgd.trans.TranslationException;
+import org.jax.mgi.dbs.mgd.lookup.TranslationException;
 
 /**
  * @is An object that resolves a SequenceRawAttributes to a SEQ_SequenceState.
