@@ -692,7 +692,8 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 
         // interpret quality from division
         if(locus.substring(64, 67).equals("EST") ||
-           locus.substring(64, 67).equals("HTG")) {
+           locus.substring(64, 67).equals("HTG") ||
+	   locus.substring(64, 67).equals("STS")) {
             rawSeq.setQuality("Medium");
         }
         else {
@@ -775,6 +776,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 }
 
 //  $Log$
+//  Revision 1.6  2004/02/17 18:30:45  sc
+//  Create new StringBuffers rather than StringBuffer.setLength(0)
+//
 //  Revision 1.5  2004/02/11 15:51:54  sc
 //  moved some local vars to class vars so we dont have to create a new StringBuffer each time (just set its length to 0
 //
