@@ -192,6 +192,17 @@ then
     shutDown
     exit 1
 fi
+
+# temporarily call this during testing to create a sequence status as deleted
+/home/lec/db/mgidbmigration/JSAM/deleteSequence.csh ${MGD_DBSCHEMADIR}
+STAT=$?
+if [ ${STAT} -ne 0 ]
+then
+    echo "deleteSequence.csh failed.  Return status: ${STAT}" >> ${LOG_PROC}
+    shutDown
+    exit 1
+fi
+
 echo "gbseqload completed successfully" >> ${LOG_PROC}
 
 shutDown
