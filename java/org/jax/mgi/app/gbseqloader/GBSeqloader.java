@@ -80,12 +80,6 @@ import java.lang.Runtime;
  */
 
 public class GBSeqloader {
-    /**
-     * Debugging Classes
-     */
-    // For memory usage
-    Runtime runTime;
-    Stopwatch watch;
 
     // configurator for the sequence load
     private SequenceLoadCfg loadCfg;
@@ -157,7 +151,9 @@ public class GBSeqloader {
         DLAException e1 = null;
         DLAExceptionHandler eh = null;
         GBSeqloader seqloader = new GBSeqloader();
+
         //  instantiate objects and initialize variables
+
         try {
             seqloader.initialize();
         }
@@ -176,6 +172,7 @@ public class GBSeqloader {
            System.out.println(e1.getMessage());
            System.exit(1);
        }
+
     }
 
     /**
@@ -189,8 +186,6 @@ public class GBSeqloader {
 
     private void initialize () throws MGIException {
         MGIException.setOkToStackTrace(true);
-        watch = new Stopwatch();
-        runTime = Runtime.getRuntime();
         // get a configurator then get load mode
         loadCfg = new SequenceLoadCfg();
         loadMode = loadCfg.getLoadMode();
@@ -248,36 +243,38 @@ public class GBSeqloader {
         // Create a stream for handling RDR DAO objects.
         rdrStream = new BCP_Inline_Stream(rdrSqlMgr, rdrBcpMgr);
 
-        // sequence loader exception factory
-        eFactory = new SeqloaderExceptionFactory();
-        try {
-            repeatSeqWriter = new BufferedWriter(
-                new FileWriter(loadCfg.getRepeatFileName()));
-        }
-        catch (IOException e) {
-            SeqloaderException e1 =
-                (SeqloaderException) eFactory.getException(
-                    SeqloaderExceptionFactory.RepeatFileIOException, e);
-            throw e1;
-        }
+
 
         seqResolver = new GBSeqAttributeResolver();
         if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
-            // passing null MergeSplitProcessor
             seqProcessor = new IncremSeqProcessor(mgdStream,
                                                   rdrStream,
-                                                  seqResolver,
-                                                  mergeSplitProcessor,
-                                                  repeatSeqWriter);
+                                                  seqResolver);
+                                                  //mergeSplitProcessor,
+                                                  //repeatSeqWriter);
         }
         else if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
-            mergeSplitProcessor = new MergeSplitProcessor();
-            // passing a real MergeSplitProcessor
+            //mergeSplitProcessor = new MergeSplitProcessor();
+            // passing in a null merge split processor until it is tested
             seqProcessor = new IncremSeqProcessor(mgdStream,
                                                   rdrStream,
                                                   seqResolver,
                                                   mergeSplitProcessor,
                                                   repeatSeqWriter);
+
+            // sequence loader exception factory
+            eFactory = new SeqloaderExceptionFactory();
+            try {
+                repeatSeqWriter = new BufferedWriter(
+                    new FileWriter(loadCfg.getRepeatFileName()));
+            }
+            catch (IOException e) {
+                SeqloaderException e1 =
+                    (SeqloaderException) eFactory.getException(
+                        SeqloaderExceptionFactory.RepeatFileIOException, e);
+                throw e1;
+            }
+
         }
         else if (loadMode.equals(SeqloaderConstants.DELETE_RELOAD_MODE)) {
             seqProcessor = new DRSeqProcessor(mgdStream, seqResolver);
@@ -308,6 +305,18 @@ public class GBSeqloader {
             KeyNotFoundException, IOUException, DLALoggingException,
              MSException, TranslationException, SeqloaderException {
         // DEBUG stuff
+
+        // Timing the load
+        Stopwatch loadStopWatch = new Stopwatch();
+        loadStopWatch.start();
+
+        // For memory usage
+        Runtime runTime = Runtime.getRuntime();
+
+        // Timing individual sequence processing
+        Stopwatch sequenceStopWatch = new Stopwatch();
+
+
         long runningFreeMemory = 0;
         long currentFreeMemory = 0;
         int seqCtr = 0;
@@ -323,13 +332,14 @@ public class GBSeqloader {
 
         // get the next record
         while (iterator.hasNext()) {
+          sequenceStopWatch.reset();
+          sequenceStopWatch.start();
           try {
 
               // interpret next record
-              watch.reset();
-              watch.start();
+
               si = (SequenceInput) iterator.next();
-              System.out.println(si.getPrimaryAcc().getAccID());
+              //System.out.println(si.getPrimaryAcc().getAccID());
           }
           catch (RecordFormatException e) {
               logger.logdErr(e.getMessage());
@@ -344,8 +354,12 @@ public class GBSeqloader {
           // or PubMed
 
           try {
-
-            seqProcessor.processSequence(si);
+            if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
+                seqProcessor.processAddEvent(si);
+            }
+            else {
+              seqProcessor.processSequence(si);
+            }
 
             //DEBUG
             seqCtr = passedCtr + errCtr;
@@ -353,11 +367,10 @@ public class GBSeqloader {
             runningFreeMemory = runningFreeMemory + currentFreeMemory;
             if (seqCtr  > 0 && seqCtr % 100 == 0) {
                 logger.logdInfo("Processed " + seqCtr + " input records", false);
+                System.gc();
                 //logger.logdInfo("Total Memory Available to the VM: " + runTime.totalMemory(), false);
                 //logger.logdInfo("Free Memory Available: " + currentFreeMemory, false);
             }
-            watch.stop();
-            logger.logdInfo(currentFreeMemory + "\t" + watch.time(), false);
           }
           // if we can't resolve SEQ_Sequence attributes, go to the next
           // sequence in the input
@@ -392,7 +405,16 @@ public class GBSeqloader {
           }
 
           passedCtr++;
+          // Too much of a dog to do every sequence
+          //System.gc();
+          sequenceStopWatch.stop();
+          logger.logdInfo(currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
         }
+        loadStopWatch.stop();
+        // report total time for GBSeqloader.load()
+        logger.logdDebug("Total GBSeqloader.load() time in seconds: " + loadStopWatch.time() +
+                         "time in minutes: " + (loadStopWatch.time()/60));
+
         // report Sequence Lookup execution times
         seqCtr = passedCtr + errCtr;
         logger.logdDebug("Total Sequence Processed = " + seqCtr);
@@ -404,7 +426,7 @@ public class GBSeqloader {
           logger.logdDebug("Least SequenceLookup time = " + seqProcessor.lowLookupTime);
           // report MSProcessor execution times
           logger.logdDebug("Average MSProcessor time = " +
-                           (seqProcessor.runningMSPTime / seqCtr));
+                         (seqProcessor.runningMSPTime / seqCtr));
           logger.logdDebug("Greatest MSProcessor time = " + seqProcessor.highMSPTime);
           logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime);
           // report free memory average
@@ -423,16 +445,17 @@ public class GBSeqloader {
 
         // process qc inserts to the radar database
         rdrStream.close();
-
-        // close the repeat sequence writer
-        try {
-            repeatSeqWriter.close();
-        }
-        catch (IOException e) {
-            SeqloaderException e1 =
-                (SeqloaderException) eFactory.getException(
-                    SeqloaderExceptionFactory.RepeatFileIOException, e);
-            throw e1;
+        if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
+            // close the repeat sequence writer
+            try {
+              repeatSeqWriter.close();
+            }
+            catch (IOException e) {
+              SeqloaderException e1 =
+                  (SeqloaderException) eFactory.getException(
+                      SeqloaderExceptionFactory.RepeatFileIOException, e);
+              throw e1;
+          }
         }
     }
 }
