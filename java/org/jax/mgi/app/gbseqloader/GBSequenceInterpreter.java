@@ -108,8 +108,17 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     private MSRawAttributes ms = new MSRawAttributes();
 
     // checks a sequence record to see if it an organism we want to load
-    GBOrganismChecker organismChecker;
+    private GBOrganismChecker organismChecker;
 
+    // vars that hold sequence record sections for later parsing
+    private String locus;
+    private StringBuffer definition;
+    private StringBuffer accession;
+    private String version;
+    private String organism;
+    private StringBuffer classification;
+    private StringBuffer reference;
+    private StringBuffer source;
 
     /**
     * Constructs a GBSequenceInterpreter
@@ -122,6 +131,16 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException {
         // Create an organism checker for GenBank with the set of deciders
         this.organismChecker = oc;
+
+        // Initialize vars that hold sequence record sections for later parsing
+        locus = null;
+        definition = new StringBuffer();
+        accession  = new StringBuffer();
+        version = null;
+        organism = null;
+        classification  = new StringBuffer();
+        reference = new StringBuffer();
+        source = new StringBuffer();
     }
 
     /**
@@ -140,15 +159,15 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
         // the current section we are looking for
         int currentSection = LOCUS_SECTION;
 
-        // Initialize vars that hold sequence record sections for later parsing
-        String locus = null;
-        StringBuffer definition = new StringBuffer();
-        StringBuffer accession  = new StringBuffer();
-        String version = null;
-        String organism = null;
-        StringBuffer classification  = new StringBuffer();
-        StringBuffer reference = new StringBuffer();
-        StringBuffer source = new StringBuffer();
+        // re-initialize vars that hold sequence record sections for later parsing
+        locus = null;
+        definition.setLength(0);
+        accession.setLength(0);
+        version = null;
+        organism = null;
+        classification.setLength(0);
+        reference.setLength(0);
+        source.setLength(0);
 
         // reset reused instance variables
         sequenceInput.reset();
@@ -756,6 +775,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 }
 
 //  $Log$
+//  Revision 1.4  2004/02/02 19:33:06  sc
+//  Removed code in isValid() that checked for named libraries - vestige of GBSeqloaderIntial.java
+//
 //  Revision 1.3  2004/01/07 19:01:04  sc
 //  updated import statement for StringLib
 //
