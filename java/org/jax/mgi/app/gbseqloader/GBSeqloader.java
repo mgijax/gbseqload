@@ -171,6 +171,7 @@ public class GBSeqloader {
         }
         catch (MGIException e) {
             System.out.println(e.toString());
+            System.exit(1);
         }
         // load sequences
        try {
@@ -468,13 +469,15 @@ public class GBSeqloader {
         // process qc inserts to the radar database
         rdrStream.close();
 
-        logger.logdDebug("Processing Merge/Splits");
+
         // Process merges and splits if we have a MergeSplitProcessor
         if(mergeSplitProcessor != null) {
+              logger.logdDebug("Processing Merge/Splits");
               mergeSplitProcessor.process(mergeSplitScriptWriter);
               mergeSplitScriptWriter.execute();
+              logger.logdDebug("Finished processing Merge/Splits");
         }
-        logger.logdDebug("Finished processing Merge/Splits");
+
         if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
 
             try {
