@@ -1,6 +1,6 @@
 #format: sh
 #
-#  gbseqloader.config
+#  gbseqload.config
 #
 #  This file sets up environment variables that are needed for the
 #  GenBank Sequence load
@@ -163,10 +163,10 @@ export VIRTUAL JOBSTREAM PROVIDER
 export LOAD_MOUSE LOAD_RAT LOAD_HUMAN JNUMBER LOGICALDB
 
 #  Complete path name of the log files
-LOG_PROC=${LOGDIR}/gbseqloader.proc.log
-LOG_DIAG=${LOGDIR}/gbseqloader.diag.log
-LOG_CUR=${LOGDIR}/gbseqloader.cur.log
-LOG_VAL=${LOGDIR}/gbseqloader.val.log
+LOG_PROC=${LOGDIR}/gbseqload.proc.log
+LOG_DIAG=${LOGDIR}/gbseqload.diag.log
+LOG_CUR=${LOGDIR}/gbseqload.cur.log
+LOG_VAL=${LOGDIR}/gbseqload.val.log
 
 # Send debug messages to the diagnostic log
 LOG_DEBUG=true
