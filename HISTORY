@@ -1,3 +1,23 @@
+TAG: gbseqload-3-1-0-1
+DATE: 12/08/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: tr6392 assembly  branch merge to trunk
+
+TAG: gbseqload-assembly-3
+DATE: 11/19/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: tr6336 
+1) gbseqload.config.default - new common config vars
+
+TAG: gbseqload-assembly-2
+TAG: gbseqload-assembly-1
+DATE: 11/17/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: TR6047 lib_java_dla refactoring
+
 TAG: gbseqload-1-0-22
 DATE: 11/08/2004
 STAFF: sc

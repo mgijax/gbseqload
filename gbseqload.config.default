@@ -15,10 +15,10 @@
 ###########################################################################
 
 #  Installation directory for the GenBank sequence load
-INSTALLDIR=/usr/local/mgi/live/dataload/gbseqload
+INSTALLDIR=${USRLOCALMGI}/dataload/gbseqload
 
 #  Installation directory for the QC report product
-APP_QCRPTDIR=/usr/local/mgi/live/qcreports_db
+APP_QCRPTDIR=${QCRPTDIR}
 
 export INSTALLDIR APP_QCRPTDIR
 
@@ -36,12 +36,12 @@ MGD_DBURL=shire.informatics.jax.org:4100
 #MGD_DBURL=rohan.informatics.jax.org:4101
 
 MGD_DBNAME=mgd
-#MGD_DBNAME=mgd_lec1
+#MGD_DBNAME=mgd_sc
 
 MGD_DBUSER=mgd_dbo
-MGD_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
+MGD_DBPASSWORDFILE=${MGIDBUTILSDIR}/.mgd_dbo_password
 
-MGD_DBSCHEMADIR=/usr/local/mgi/live/dbutils/mgd/mgddbschema
+MGD_DBSCHEMADIR=${MGDDBSCHEMADIR}
 
 export MGD_DBSERVER MGD_DBURL MGD_DBNAME
 export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
@@ -54,12 +54,12 @@ RADAR_DBURL=shire.informatics.jax.org:4100
 #RADAR_DBURL=rohan.informatics.jax.org:4101
 
 RADAR_DBNAME=radar
-#RADAR_DBNAME=radar_jsam
+#RADAR_DBNAME=radar_release
 
 RADAR_DBUSER=mgd_dbo
-RADAR_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
+RADAR_DBPASSWORDFILE=${MGIDBUTILSDIR}/.mgd_dbo_password
 
-RADAR_DBSCHEMADIR=/usr/local/mgi/live/dbutils/radar/radardbschema
+RADAR_DBSCHEMADIR=${RADARDBSCHEMADIR}
 
 export RADAR_DBSERVER RADAR_DBURL RADAR_DBNAME RADAR_DBUSER 
 export RADAR_DBPASSWORDFILE RADAR_DBSCHEMADIR 
@@ -76,12 +76,11 @@ export RADAR_DBPASSWORDFILE RADAR_DBSCHEMADIR
 #JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
 JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
 
-JAVA_LIB=/usr/local/mgi/live/lib/java1.4/lib_java_dla/dla.jar:/usr/local/mgi/live/lib/java1.4/lib_java_core/core.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsmgd/dbsmgd.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsrdr/dbsrdr.jar
-
+JAVA_LIB=${JAVAPATH}/lib_java_dla/dla.jar:${JAVAPATH}/lib_java_core/core.jar:${JAVAPATH}/lib_java_dbsmgd/dbsmgd.jar:${JAVAPATH}/lib_java_dbsrdr/dbsrdr.jar
 
 CLASSPATH=.:${INSTALLDIR}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
 
-export JAVA_HOME JAVA_RUN JAVA_LIB JAVARUNTIMEOPTS CLASSPATH
+export JAVARUNTIMEOPTS JAVA_LIB CLASSPATH
 
 ###########################################################################
 #
@@ -91,7 +90,7 @@ export JAVA_HOME JAVA_RUN JAVA_LIB JAVARUNTIMEOPTS CLASSPATH
 
 #  Java applications
 DLA_LOADER=org.jax.mgi.app.gbseqloader.GBSeqloader
-DLA_START=org.jax.mgi.shr.dla.DLAStart
+DLA_START=org.jax.mgi.shr.dla.loader.DLAStart
 
 # SQL STREAM
 # this overrides the default BCP_Inline_Stream
@@ -108,12 +107,6 @@ APP_MSP_QCRPT=${APP_QCRPTDIR}/msp/runQC.csh
 export DLA_LOADER DLA_START DLA_LOAD_STREAM 
 export APP_SEQ_QCRPT APP_MS_QCRPT
 
-# Full path to dir containing GenBank release input files - 
-# Note we are using the seqdb_engine release build files
-# if LOAD_MODE=incremental the jobstream determines its own input directory
-INPUTDIR=/data/seqdbs/blast/gb.build
-#INPUTDIR=/net/hobbiton/data/seqdbs/blast/gb.build
-
 # Full path the the logs, reports, and archive directories
 FILEDIR=/data/loads/genbank/gbseqload
 #FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
@@ -122,26 +115,23 @@ RPTDIR=${FILEDIR}/reports
 ARCHIVEDIR=${FILEDIR}/archive
 OUTPUTDIR=${FILEDIR}/output
 
-export FILEDIR INPUTDIR LOGDIR RPTDIR ARCHIVEDIR OUTPUTDIR
+export FILEDIR LOGDIR RPTDIR ARCHIVEDIR OUTPUTDIR
 
-#  Complete path name of the GenBank input file(s)
 #  Frameworks expects the value 'STDIN' if jobstream script pipes input to
-#  the application. Jobstream script expects SEQ_INFILE to be defined
-#  if INFILE_NAME=STDIN
+#  the application.
 INFILE_NAME=STDIN
 
-# full path to input files when INFILE_NAME is set to STDIN
-# Note: if LOAD_MODE=incremental and RADAR_NONCUM_INPUT=true 
-# the jobstream determines its own input files
-#APP_INFILES="${INPUTDIR}/gbrod_mouse.seq ${INPUTDIR}/gbsts_sts_mouse.seq ${INPUTDIR}/gbpat_mouse.seq ${INPUTDIR}/gbhtc_mouse_mrna.seq ${INPUTDIR}/gbhtg_mouse.seq ${INPUTDIR}/gbest_mouse.seq ${INPUTDIR}/gbgss_mouse.seq"
+# full path to input file directory when APP_RADAR_INPUT=false
+INPUTDIR=/data/downloads/ftp.ncbi.nih.gov/genbank/gb_daily-nc
 
-APP_INFILES=
+# full path to input files when APP_RADAR_INPUT=false
+APP_INFILES=${INPUTDIR}/...
 
-# the seqdb_engine release input files are not compressed, the non-cums are
+# how files are piped to the application
 APP_CAT_METHOD="/usr/local/bin/gunzip -c"
 #APP_CAT_METHOD=/usr/bin/cat
 
-export INFILE_NAME APP_INFILES APP_CAT_METHOD 
+export INFILE_NAME INPUTDIR APP_INFILES APP_CAT_METHOD 
 
 # true = regex matching for finding record delim is turned on
 INFILE_USE_REGEX=false
@@ -173,9 +163,9 @@ SEQ_LOAD_MODE=incremental
 APP_RADAR_INPUT=true
 
 # max size of a set of radar files to process in bytes -
-# 300MB compressed seems to be good
+# 500MB compressed seems to be good
 # if set to 0, all files will be processed
-APP_RADAR_MAX=300000000
+APP_RADAR_MAX=500000000
 
 export INFILE_BUFFERSIZE SEQ_LOAD_MODE APP_RADAR_MAX APP_RADAR_INPUT
 
@@ -212,7 +202,7 @@ DBDEBUG=false
 CACHE_DEBUG=false
 
 # logger factory class - allows classes to get their own loggers
-LOG_FACTORY=org.jax.mgi.shr.dla.DLALoggerFactory
+LOG_FACTORY=org.jax.mgi.shr.dla.log.DLALoggerFactory
 
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL LOG_DEBUG 
 export CACHE_DEBUG LOG_FACTORY

@@ -7,22 +7,21 @@ import java.util.*;
 import java.util.regex.*;
 import java.sql.*;
 
-import org.jax.mgi.shr.dla.seqloader.SequenceInterpreter;
-import org.jax.mgi.shr.dla.seqloader.SequenceInput;
-import org.jax.mgi.shr.dla.seqloader.SeqloaderConstants;
-import org.jax.mgi.shr.dla.seqloader.SeqRefAssocPair;
-import org.jax.mgi.shr.dla.seqloader.DateConverter;
-import org.jax.mgi.shr.dla.seqloader.AccessionRawAttributes;
-import org.jax.mgi.shr.dla.seqloader.RefAssocRawAttributes;
-import org.jax.mgi.shr.dla.seqloader.SequenceRawAttributes;
-import org.jax.mgi.shr.dla.seqloader.GBFormatInterpreter;
-import org.jax.mgi.shr.dla.seqloader.GBOrganismChecker;
+import org.jax.mgi.shr.dla.input.SequenceInterpreter;
+import org.jax.mgi.shr.dla.input.SequenceInput;
+import org.jax.mgi.shr.dla.loader.seq.SeqloaderConstants;
+import org.jax.mgi.dbs.mgd.loads.SeqRefAssoc.SeqRefAssocPair;
+import org.jax.mgi.shr.dla.input.DateConverter;
+import org.jax.mgi.dbs.mgd.loads.Acc.AccessionRawAttributes;
+import org.jax.mgi.dbs.mgd.loads.SeqRefAssoc.RefAssocRawAttributes;
+import org.jax.mgi.dbs.mgd.loads.Seq.SequenceRawAttributes;
+import org.jax.mgi.shr.dla.input.genbank.GBFormatInterpreter;
+import org.jax.mgi.shr.dla.input.genbank.GBOrganismChecker;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
 import org.jax.mgi.shr.stringutil.StringLib;
-import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
-// DEBUG
-import org.jax.mgi.shr.dla.DLALoggingException;
+import org.jax.mgi.dbs.mgd.loads.SeqSrc.MSRawAttributes;
+
     /**
      * @is An object that parses a GenBank sequence record and obtains values
      *     from a Configurator to create a SequenceInput data object.<BR>
@@ -52,7 +51,7 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 
     private SequenceInput seqInput;
 
-    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException, DLALoggingException {
+    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException {
         super(oc);
     }
     /**
@@ -95,6 +94,15 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 }
 
 //  $Log$
+//  Revision 1.11.2.2  2004/11/17 14:32:07  sc
+//  removed extraneous import
+//
+//  Revision 1.11.2.1  2004/11/17 13:33:40  sc
+//  tr6047 lib_java_dla refactoring
+//
+//  Revision 1.11  2004/07/12 17:21:28  sc
+//  TR5925 set quality to medium if a tpa sequence
+//
 //  Revision 1.10  2004/04/27 15:46:17  sc
 //   moved creation of provider string from GBSeqloadAttributeResolver
 //
