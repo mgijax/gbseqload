@@ -102,7 +102,8 @@ export GBSEQLOAD_APP GBSEQLOAD_SH GBSEQLOAD_QCRPT
 
 #  Path name of the data, report, log and archive directories
 FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload-1-0-3
-DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
+DATADIR=/net/hobbiton/data/seqdbs/blast/gb.build
+#DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
@@ -115,11 +116,8 @@ export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 #  jobstream expects the variable PIPED_INFILE to be defined
 INFILE_NAME=STDIN
 
-# input file directory
-INFILE_DIR=/net/hobbiton/data/seqdbs/blast/gb.build
-
 # list of files to pipe to application
-PIPED_INFILES=${INFILE_DIR}/gbrod_mouse.seq ${INFILE_DIR}/gbsts_sts_mouse.seq ${INFILE_DIR}/gbpat_mouse.seq ${INFILE_DIR}/gbhtc_mouse_mrna.seq ${INFILE_DIR}/gbhtg_mouse.seq ${INFILE_DIR}/gbest_mouse.seq ${INFILE_DIR}/gbgss_mouse.seq
+PIPED_INFILES=${DATADIR}/gbrod_mouse.seq ${DATADIR}/gbsts_sts_mouse.seq ${DATADIR}/gbpat_mouse.seq ${DATADIR}/gbhtc_mouse_mrna.seq ${DATADIR}/gbhtg_mouse.seq ${DATADIR}/gbest_mouse.seq ${DATADIR}/gbgss_mouse.seq
 
 # GenBank sequence record regex end delimiter
 #INFILE_END_DELIMITER="^//"
