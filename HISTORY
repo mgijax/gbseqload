@@ -1,3 +1,12 @@
+DATE: 04/06/2004
+STAFF: sc
+CHANGES:
+1) gbseqload.sh and gbseqload.config.defaults - added CAT_METHOD
+2) gbseqload.config.defaults - added SEQ_ prefixing
+3) GBSeqloader - fixed bug, initialize repeateSeqWriter before passing to
+   IncremSeqProcessor constructor. also moved all stats logging to the end
+   after processing merges and splits
+
 DATE: 03/24/2004
 STAFF: sc
 CHANGES:
