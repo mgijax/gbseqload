@@ -1,3 +1,13 @@
+DATE: 02/17/2004
+STAFF: sc
+RELEASE:
+CHANGES: changed import statement for TranslationException, added some debug stuff
+
+DATE: 02/12/2004
+STAFF: sc
+RELEASE:
+CHANGES: gbseqload.config.defaults - removed new line from end of  INFILE_END_DELIMITER=ORIGIN 
+
 TAG: gbseqload-1-0-3
 DATE: 02/11/2004
 STAFF: sc
