@@ -17,7 +17,7 @@ import org.jax.mgi.shr.dla.seqloader.RefAssocRawAttributes;
 import org.jax.mgi.shr.dla.seqloader.SequenceRawAttributes;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
-import org.jax.mgi.shr.StringLib;
+import org.jax.mgi.shr.stringutil.StringLib;
 import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
 
 
@@ -756,6 +756,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 }
 
 //  $Log$
+//  Revision 1.2  2003/12/20 16:32:01  sc
+//  Changed from code review
+//
 //  Revision 1.1  2003/12/08 18:50:30  sc
 //  initial commit
 //
