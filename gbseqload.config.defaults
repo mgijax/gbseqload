@@ -18,29 +18,43 @@ INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
 #INSTALLDIR=/home/sc/jsam/gbseqload
 
 #  Installation directory for the DB utilities product
-DBUTILSDIR=/home/sc/jsam/mgidbutilities
+DBUTILSDIR=/usr/local/mgi/3.0/dbutils/mgidbutilities
+#DBUTILSDIR=/home/sc/jsam/mgidbutilities
 
 #  Installation directory for the QC report product
-#QCRPTDIR=/usr/local/mgi/qcreports_db
-QCRPTDIR=/home/sc/jsam/qcreports_db
+QCRPTDIR=/usr/local/mgi/3.0/qcreports_db
+#QCRPTDIR=/home/sc/jsam/qcreports_db
 
 export INSTALLDIR DBUTILSDIR QCRPTDIR
 
 ###########################################################################
 #
-#  DATABASE SETTINGS
+#  DATABASE SETTINGS BY DATABASE
 #
 ###########################################################################
 
-#  Connection parameters for the MGD database
+# MGD Connection parameters 
 MGD_DBSERVER=DEV1_MGI
-MGD_DBNAME=mgd_jsamsc
+MGD_DBURL=rohan.informatics.jax.org:4101
+MGD_DBNAME=mgd_jsam
+#MGD_DBNAME=mgd_jsamsc
 MGD_DBUSER=mgd_dbo
 MGD_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
 MGD_DBSCHEMADIR=/home/sc/jsam/mgddbschema
 
-export MGD_DBSERVER MGD_DBNAME
+export MGD_DBSERVER MGD_DBURL MGD_DBNAME
 export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
+
+# RADAR Connection parameters 
+RADAR_DBSERVER=DEV1_MGI
+RADAR_DBURL=rohan.informatics.jax.org:4101
+RADAR_DBNAME=radar_release
+RADAR_DBUSER=mgd_dbo
+RADAR_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
+RADAR_DBSCHEMADIR=/home/sc/jsam/radardbschema
+
+export RADAR_DBSERVER RADAR_DBURL RADAR_DBNAME RADAR_DBUSER RADAR_DBPASSWORDFILE
+export RADAR_DBSCHEMADIR 
 
 ###########################################################################
 #
@@ -52,16 +66,16 @@ JAVA_HOME=/usr/j2se
 JAVA_RUN=${JAVA_HOME}/bin/java
 JAVARUNTIMEOPTS=-Xmx2000m      # allow 2G memory limit
 
-#CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar:/usr/local/mgi/3.0/lib/java1.4/class
+CLASSPATH=./usr/local/mgi/3.0/lib/java/gbseqload.jar:/usr/local/mgi/3.0/lib/javacore.jar:/usr/local/mgi/3.0/lib/java/dbsmgd.jar:/usr/local/mgi/3.0/lib/java/dbsrdr.jar:/usr/local/mgi/3.0/lib/java/dla.jar:/usr/local/mgi/3.0/lib/java:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar:/usr/local/mgi/3.0/lib/java1.4/class
 
-CLASSPATH=.:/home/sc/jsam/special_classes/java:/home/sc/jsam/lib_java_core/core.jar:/home/sc/jsam/lib_java_dbsmgd/dbsmgd.jar:/home/sc/jsam/lib_java_dbsrdr/dbsrdr.jar:/home/sc/jsam/lib_java_dla/dla/jar:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar
+#CLASSPATH=.:/home/sc/jsam/gbseqload/classes:/home/sc/jsam/lib_java_core/classes:/home/sc/jsam/lib_java_dbsmgd/classes:/home/sc/jsam/lib_java_dbsrdr/classes:/home/sc/jsam/lib_java_dla/classes:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar
 
 DLAFUNCTIONS=${DBUTILSDIR}/bin/DLAfunctions.sh
 
 JOBSTART_CSH=${DBUTILSDIR}/bin/startJobStream.csh
 JOBEND_CSH=${DBUTILSDIR}/bin/endJobStream.csh
 
-export JAVA_HOME JAVA_RUN CLASSPATH DLAFUNCTIONS
+export JAVA_HOME JAVA_RUN JAVARUNTIMEOPTS CLASSPATH DLAFUNCTIONS
 export JOBSTART_CSH JOBEND_CSH
 
 ###########################################################################
@@ -71,7 +85,7 @@ export JOBSTART_CSH JOBEND_CSH
 ###########################################################################
 
 #  Java applications
-GBSEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqLoader
+GBSEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqloader
 
 #  loader shell script
 GBSEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
@@ -83,9 +97,9 @@ GBSEQLOAD_QCRPT=${QCRPTDIR}/gbseqloadRpt.sh
 export GBSEQLOAD_APP GBSEQLOAD_SH GBSEQLOAD_QCRPT
 
 #  Path name of the data, report, log and archive directories
-FILEDIR=/net/rohan/data/loads/genbank/gbseqload
+FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
+DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 
-DATADIR=/net/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
 ARCHIVEDIR=${FILEDIR}/archive
@@ -93,32 +107,34 @@ ARCHIVEDIR=${FILEDIR}/archive
 export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 
 #  Complete path name of the GenBank input file
-INFILE_NAME=${DATADIR}/data
+INFILE_NAME=STDIN
 
-## GenBank sequence record delimiter
+# GenBank sequence record delimiter
 INFILE_END_DELIMITER="^//"
 
-# incremental or delete/reload mode
-#LOAD_MODE=
+# incremental, incremental_initial, or delete_reload
+# incremental_initial doesn't use a MergeSplitProcessor
+LOAD_MODE=incremental_initial
 
-export INFILE_NAME INFILE_DELIMITER LOAD_MODE
+# path to repeat file; file gbseqload writes sequences found more than
+# once in the input
+REPEAT_FILE=${FILEDIR}/data/repeats.out
+
+export INFILE_NAME INFILE_DELIMITER LOAD_MODE REPEAT_FILE
 
 # true if a virtual (computationally derived) sequence
 VIRTUAL=false
 
 # this load's login value for DB table CreatedBy and ModifiedBy
-# I think we'll need the user type also?
 JOBSTREAM=jsam_load
 
-# SEQ_Sequence Provider controlled vocab for GenBank
+# SEQ_Sequence Provider controlled vocab for GenBank 
 PROVIDER=GenBank
 
 # organisms to load
 LOAD_MOUSE=true
-LOAD_RAT=true
-LOAD_HUMAN=true
-
-export MOUSE RAT HUMAN
+LOAD_RAT=false
+LOAD_HUMAN=false
 
 # load jnumber
 # Don't think we need this anymore
@@ -127,7 +143,8 @@ JNUMBER=J:12345
 # logical db name for this data provider
 LOGICALDB="Sequence DB"
 
-export VIRTUAL JOBSTREAM PROVIDER JNUMBER LOGICALDB
+export VIRTUAL JOBSTREAM PROVIDER 
+export LOAD_MOUSE LOAD_RAT LOAD_HUMAN JNUMBER LOGICALDB
 
 #  Complete path name of the log files
 LOG_PROC=${LOGDIR}/gbseqloader.proc.log
@@ -141,6 +158,12 @@ LOG_DEBUG=true
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL LOG_DEBUG
 
 
+###########################################################################
+#
+#  BCP MANAGER SETTINGS BY DATABASE
+#
+###########################################################################
+
 #  Settings used to create a BCP manager for the MGD database
 MGD_BCP_PATH=${FILEDIR}/data
 MGD_BCP_PREVENT_EXECUTE=true
@@ -148,11 +171,46 @@ MGD_BCP_TRUNCATE_LOG=true
 MGD_BCP_DROP_INDEXES=true
 MGD_BCP_RECORD_STAMPING=false
 MGD_BCP_AUTO_FLUSH=false
+MGD_BCP_OK_TO_OVERWRITE=false
 
 export MGD_BCP_PATH MGD_BCP_PREVENT_EXECUTE MGD_BCP_TRUNCATE_LOG
 export MGD_BCP_DROP_INDEXES MGD_BCP_RECORD_STAMPING MGD_BCP_AUTO_FLUSH
+export MGD_BCP_OK_TO_OVERWRITE
 
+#  Settings used to create a BCP manager for the MGD database
+RADAR_BCP_PATH=${FILEDIR}/data
+RADAR_BCP_PREVENT_EXECUTE=true
+RADAR_BCP_TRUNCATE_LOG=true
+RADAR_BCP_DROP_INDEXES=true
+RADAR_BCP_RECORD_STAMPING=false
+RADAR_BCP_AUTO_FLUSH=false
+RADAR_BCP_OK_TO_OVERWRITE=false
 
+export RADAR_BCP_PATH RADAR_BCP_PREVENT_EXECUTE RADAR_BCP_TRUNCATE_LOG
+export RADAR_BCP_DROP_INDEXES RADAR_BCP_RECORD_STAMPING RADAR_BCP_AUTO_FLUSH
+export RADAR_BCP_OK_TO_OVERWRITE
+
+###########################################################################
+#
+#  SQL SCRIPTWRITER SETTINGS FOR MGD DATABASE
+#
+###########################################################################
+
+# setting used to create a ScriptWriter for the MGD database
+MGD_SCP_PATH=${MGD_BCP_PATH}
+MGD_SCP_PREVENT_EXECUTE=true
+MGD_SCP_OK_TO_OVERWRITE=false
+
+# Use default = script
+#MGD_SCP_FILENAME=
+
+# Use defaults
+#MGD_SCP_SUFFIX=
+#MGD_SCP_OUTFILENAME=
+#MGD_SCP_OUTSUFFIX=
+
+export MGD_SCP_PATH MGD_SCP_PREVENT_EXECUTE MGD_SCP_OK_TO_OVERWRITE
+#export MGD_SCP_FILENAME MGD_SCP_SUFFIX MGD_SCP_OUTFILENAME MGD_SCP_OUTSUFFIX
 ###########################################################################
 #
 #  MISCELLANEOUS SETTINGS
