@@ -186,9 +186,13 @@ ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 #cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small2.seq 
 
 #cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
+
 #cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq | 
+
 #cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
+
 #cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.tiny.seq | 
+
 #cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbpat_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbrod_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbsts_sts_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbgss_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbest_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbhtg_mouse.seq | 
 
 # dataset for the 172000 sequence run
@@ -200,7 +204,11 @@ ROHANDIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 # dataset for the 1mill sequence run
 #cat ${HOBBITONDIR}/gbrod_mouse.seq ${HOBBITONDIR}/gbsts_sts_mouse.seq ${HOBBITONDIR}/gbpat_mouse.seq ${HOBBITONDIR}/gbhtc_mouse_mrna.seq ${HOBBITONDIR}/gbhtg_mouse.seq ${ROHANDIR}/est_500000.seq ${ROHANDIR}/gss_220000.seq | 
 
-cat ${HOBBITONDIR}/gbrod_mouse.seq ${HOBBITONDIR}/gbsts_sts_mouse.seq ${HOBBITONDIR}/gbpat_mouse.seq ${HOBBITONDIR}/gbhtc_mouse_mrna.seq ${HOBBITONDIR}/gbhtg_mouse.seq ${HOBBITONDIR}/gbest_mouse.seq ${HOBBITONDIR}/gbgss_mouse.seq | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xloggc:${LOGDIR}/gbseqloadGCStatus.txt -Xprof ${GBSEQLOAD_APP} > ${LOGDIR}/gbseqloadProfile.txt
+# Run with release intermediate files from seqdb_engine
+#cat ${HOBBITONDIR}/gbrod_mouse.seq ${HOBBITONDIR}/gbsts_sts_mouse.seq ${HOBBITONDIR}/gbpat_mouse.seq ${HOBBITONDIR}/gbhtc_mouse_mrna.seq ${HOBBITONDIR}/gbhtg_mouse.seq ${HOBBITONDIR}/gbest_mouse.seq ${HOBBITONDIR}/gbgss_mouse.seq | 
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
+
+cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xloggc:${LOGDIR}/gbseqloadGCStatus.txt -Xprof ${GBSEQLOAD_APP} | tee -a ${LOGDIR}/gbseqloadProfile.txt
 
 #-Xrunhprof:file=${LOGDIR}/gbseqloadProfile.txt,format=b ${GBSEQLOAD_APP}
 
