@@ -168,7 +168,9 @@ public class GBSeqloader {
         try {
             seqloader.initialize();
         }
-        catch (MGIException e) {
+        // Changed to catch Exception instead of MGIException in order to help
+        // debugging
+        catch (Exception e) {
             System.out.println(e.toString());
             System.exit(1);
         }
@@ -176,7 +178,7 @@ public class GBSeqloader {
        try {
            seqloader.load();
        }
-       catch (MGIException e) {
+       catch (Exception e) {
            e1 = new DLAException("Sequence loader failed", false);
            e1.setParent(e);
            eh = new DLAExceptionHandler();
@@ -245,7 +247,7 @@ public class GBSeqloader {
          */
         // Create a SQLDataManager for the Radar database from the factory.
         rdrSqlMgr = SQLDataManagerFactory.getShared(SchemaConstants.RADAR);
-
+        rdrSqlMgr.setLogger(logger);
         // Create a bcp manager that has been configured for the MGD database.
         rdrBcpMgr = new BCPManager(new BCPManagerCfg("RADAR"));
 
@@ -353,7 +355,7 @@ public class GBSeqloader {
               // interpret next record
 
               si = (SequenceInput) iterator.next();
-              System.out.println(si.getPrimaryAcc().getAccID());
+              //System.out.println(si.getPrimaryAcc().getAccID());
           }
           catch (RecordFormatException e) {
               logger.logdErr(e.getMessage());
@@ -367,6 +369,7 @@ public class GBSeqloader {
           // sequence in the input
           catch (RepeatSequenceException e) {
               logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
+              errCtr++;
               continue;
           }
           catch (ChangedOrganismException e) {
@@ -412,48 +415,19 @@ public class GBSeqloader {
           passedCtr++;
           sequenceStopWatch.stop();
           logger.logdDebug("MEM&TIME: " + (passedCtr + errCtr) + "\t" +
-                           currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
+              currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
         }
+        // get the sequence processing time
         loadStopWatch.stop();
-        double totalLoadTime = loadStopWatch.time();
-
-        // report total time for GBSeqloader.load()
-        logger.logdInfo("Total GBSeqloader.load() time in minutes: " + (totalLoadTime/60), true);
-
-        // report Sequence Lookup execution times
-        seqCtr = passedCtr + errCtr;
-        logger.logdInfo("Total Sequence Processed = " + seqCtr + " (" + errCtr + " had errors)", false);
-        logger.logdInfo("Average Processing Time/Sequence = " + (totalLoadTime / seqCtr), false);
-        if (seqCtr > 0) {
-          logger.logdInfo("Average SequenceLookup time = " +
-                          (seqProcessor.runningLookupTime / seqCtr), false);
-
-          logger.logdDebug("Greatest SequenceLookup time = " +
-                           seqProcessor.highLookupTime, false);
-          logger.logdDebug("Least SequenceLookup time = " +
-                           seqProcessor.lowLookupTime, false);
-          // report MSProcessor execution times
-          logger.logdDebug("Average MSProcessor time = " +
-                           (seqProcessor.runningMSPTime / seqCtr), false);
-          logger.logdDebug("Greatest MSProcessor time = " +
-                           seqProcessor.highMSPTime, false);
-          logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime, false);
-          // report free memory average
-          logger.logdDebug("Average Free Memory = " + (runningFreeMemory / seqCtr), false);
-          logger.logdInfo("Organism Decider Counts:", true);
-        }
-        Vector deciderCts = organismChecker.getDeciderCounts();
-          for (Iterator i = deciderCts.iterator(); i.hasNext(); ) {
-            logger.logdInfo( (String) i.next(), true);
-          }
+        double totalProcessTime = loadStopWatch.time();
 
         // processes inserts, deletes and updates to mgd
         logger.logdInfo("Closing mgdStream", false);
         mgdStream.close();
 
+        //  process merges and splits - note: all adds and updates must
+        // already be processed (mgdstream must already be closed).
         if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
-          //  process merges and splits - note: all adds and updates must
-          // already be processed (mgdstream must already be closed).
           logger.logdInfo("Processing Merge/Splits", true);
           mergeSplitProcessor.process(mergeSplitScriptWriter);
           mergeSplitScriptWriter.execute();
@@ -475,6 +449,38 @@ public class GBSeqloader {
         // mergeSplitProcessor does qc reporting
         logger.logdInfo("Closing rdrStream", false);
         rdrStream.close();
+
+        // report Sequence processing statistics
+        logger.logdInfo("Total GBSeqloader.load() time in minutes: " +
+                        (totalProcessTime/60), true);
+
+        seqCtr = passedCtr + errCtr;
+        logger.logdInfo("Total Sequence Processed = " + seqCtr + " (" + errCtr +
+                        " skipped because of errors or repeated sequences)", false);
+        logger.logdInfo("Average Processing Time/Sequence = " +
+                        (totalProcessTime / seqCtr), false);
+        if (seqCtr > 0) {
+          logger.logdInfo("Average SequenceLookup time = " +
+                          (seqProcessor.runningLookupTime / seqCtr), false);
+
+          logger.logdDebug("Greatest SequenceLookup time = " +
+                           seqProcessor.highLookupTime, false);
+          logger.logdDebug("Least SequenceLookup time = " +
+                           seqProcessor.lowLookupTime, false);
+          // report MSProcessor execution times
+          logger.logdDebug("Average MSProcessor time = " +
+                           (seqProcessor.runningMSPTime / seqCtr), false);
+          logger.logdDebug("Greatest MSProcessor time = " +
+                           seqProcessor.highMSPTime, false);
+          logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime, false);
+          // report free memory average
+          logger.logdDebug("Average Free Memory = " + (runningFreeMemory / seqCtr), false);
+        }
+        logger.logdInfo("Organism Decider Counts:", true);
+        Vector deciderCts = organismChecker.getDeciderCounts();
+        for (Iterator i = deciderCts.iterator(); i.hasNext(); ) {
+            logger.logdInfo( (String) i.next(), false);
+        }
 
         // report Event counts for sequences processed - Note that all
         // Merge and Split events are also other events. e.g. if two sequences
