@@ -21,8 +21,8 @@ import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
 import org.jax.mgi.shr.stringutil.StringLib;
 import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
-
-
+// DEBUG
+import org.jax.mgi.shr.dla.DLALoggingException;
     /**
      * @is An object that parses a GenBank sequence record and obtains values
      *     from a Configurator to create a SequenceInput data object.<BR>
@@ -52,7 +52,7 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 
     private SequenceInput seqInput;
 
-    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException {
+    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException, DLALoggingException {
         super(oc);
     }
     /**
@@ -80,12 +80,20 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
         else {
             seqInput.getSeq().setQuality(SeqloaderConstants.HIGH_QUAL);
         }
+
+        // use provider and division to set the provider
+        String provider = seqInput.getSeq().getProvider();
+        seqInput.getSeq().setProvider(provider + ":" + division);
+
         // return the SequenceInput object with quality set
         return seqInput;
     }
 }
 
 //  $Log$
+//  Revision 1.9  2004/03/31 18:54:51  sc
+//  comment edit
+//
 //  Revision 1.8  2004/02/26 21:10:47  sc
 //  much code was factored out of this class to lib_java_dla.GBFormatInterpreter.java so that it may be shared with RefSeq
 //
