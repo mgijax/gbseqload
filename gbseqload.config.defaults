@@ -21,11 +21,15 @@ INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
 DBUTILSDIR=/usr/local/mgi/3.0/dbutils/mgidbutilities
 #DBUTILSDIR=/home/sc/jsam/mgidbutilities
 
+# Installation directory for the radar dbutilites product
+RADARDBUTILSDIR=/usr/local/mgi/3.0/dbutils/radardbutilities
+#RADARDBUTILSDIR=/home/sc/jsam/radardbutilities 
+
 #  Installation directory for the QC report product
 QCRPTDIR=/usr/local/mgi/3.0/qcreports_db
 #QCRPTDIR=/home/sc/jsam/qcreports_db
 
-export INSTALLDIR DBUTILSDIR QCRPTDIR
+export INSTALLDIR DBUTILSDIR RADARDBUTILSDIR QCRPTDIR
 
 ###########################################################################
 #
@@ -77,10 +81,10 @@ CLASSPATH=.:${INSTALLDIR}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
 
 #CLASSPATH=.:/home/sc/jsam/gbseqload/classes:/home/sc/jsam/lib_java_core/classes:/home/sc/jsam/lib_java_dbsmgd/classes:/home/sc/jsam/lib_java_dbsrdr/classes:/home/sc/jsam/lib_java_dla/classes:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar
 
-DLAFUNCTIONS=${DBUTILSDIR}/bin/DLAfunctions.sh
+DLAFUNCTIONS=${RADARDBUTILSDIR}/bin/DLAfunctions.sh
 
-JOBSTART_CSH=${DBUTILSDIR}/bin/startJobStream.csh
-JOBEND_CSH=${DBUTILSDIR}/bin/endJobStream.csh
+JOBSTART_CSH=${RADARDBUTILSDIR}/bin/startJobStream.csh
+JOBEND_CSH=${RADARDBUTILSDIR}/bin/endJobStream.csh
 
 export JAVA_HOME JAVA_RUN JAVARUNTIMEOPTS CLASSPATH DLAFUNCTIONS
 export JOBSTART_CSH JOBEND_CSH
@@ -154,18 +158,14 @@ INFILE_BUFFERSIZE=21000000
 # incremental_initial doesn't use a MergeSplitProcessor
 SEQ_LOAD_MODE=incremental_initial
 
-# path to repeat file; file gbseqload writes sequences found more than
-# once in the input
-SEQ_REPEAT_FILE=${FILEDIR}/data/repeats.out
-
 export INFILE_NAME PIPED_INFILES INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER 
-export INFILE_USE_REGEX INFILE_BUFFERSIZE SEQ_LOAD_MODE SEQ_REPEAT_FILE
+export INFILE_USE_REGEX INFILE_BUFFERSIZE SEQ_LOAD_MODE 
 
 # true if a virtual (computationally derived) sequence
 SEQ_VIRTUAL=false
 
 # this load's login value for DB table CreatedBy and ModifiedBy
-SEQ_JOBSTREAM=genbank_load
+JOBSTREAM=genbank_load
 
 # SEQ_Sequence Provider controlled vocab for GenBank 
 SEQ_PROVIDER=GenBank
@@ -281,3 +281,22 @@ MAIL_LOG_PROC="sc"
 MAIL_LOG_CUR=""
 
 export MAIL_LOG_PROC MAIL_LOG_CUR
+
+###########################
+# repeat file processing
+##########################
+
+# repeat file directory
+REPEAT_FILEDIR=${FILEDIR}/data
+
+# repeat file name
+REPEAT_FILENAME=repeats.out
+
+# full path to repeat file
+SEQ_REPEAT_FILE=${REPEAT_FILEDIR}/${REPEAT_FILENAME}
+
+# rename repeat file to this name for processing
+REPEAT_TO_PROCESS=${SEQ_REPEAT_FILE}.to.process
+
+export REPEAT_FILEDIR REPEAT_FILENAME SEQ_REPEAT_FILE REPEAT_TO_PROCESS
+
