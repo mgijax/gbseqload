@@ -408,7 +408,7 @@ public class GBSeqloader {
           // Too much of a dog to do every sequence
           //System.gc();
           sequenceStopWatch.stop();
-          logger.logdInfo("MEM&TIME: " + currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
+          logger.logdInfo("MEM&TIME: " + (passedCtr + errCtr) + "\t" + currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
         }
         loadStopWatch.stop();
         double totalLoadTime = loadStopWatch.time();
