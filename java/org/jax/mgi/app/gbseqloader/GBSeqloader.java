@@ -19,7 +19,6 @@ import org.jax.mgi.shr.dla.seqloader.SeqloaderConstants;
 import org.jax.mgi.shr.dla.seqloader.MergeSplitProcessor;
 import org.jax.mgi.shr.dla.seqloader.SeqProcessor;
 import org.jax.mgi.shr.dla.seqloader.IncremSeqProcessor;
-import org.jax.mgi.shr.dla.seqloader.DRSeqProcessor;
 import org.jax.mgi.shr.dla.seqloader.SeqEventDetector;
 import org.jax.mgi.shr.dla.seqloader.SequenceInput;
 import org.jax.mgi.shr.dla.seqloader.SequenceAttributeResolver;
@@ -32,6 +31,7 @@ import org.jax.mgi.shr.dla.seqloader.RepeatSequenceException;
 import org.jax.mgi.shr.dla.seqloader.RepeatSequenceException;
 import org.jax.mgi.shr.dla.seqloader.ChangedOrganismException;
 import org.jax.mgi.shr.dla.seqloader.ChangedLibraryException;
+import org.jax.mgi.shr.dla.seqloader.ProcessSequenceInput;
 import org.jax.mgi.shr.dla.DLALogger;
 import org.jax.mgi.shr.dla.DLAException;
 import org.jax.mgi.shr.dla.DLAExceptionHandler;
@@ -137,7 +137,7 @@ public class GBSeqloader {
     // A QC reporter for managing all qc reports for the seqloader
     private SeqQCReporter qcReporter = null;
 
-    // resolves GenBank sequence attributes to MGI values
+    // resolves sequence attributes to MGI values
     private SequenceAttributeResolver seqResolver;
 
     // for processing Merges and Splits after Sequences are loaded
@@ -155,7 +155,6 @@ public class GBSeqloader {
      * For each sequence record in the input
      *    create a SequenceInput object
      *    Call SeqProcessor.processSequence(SequenceInput)
-     * :Sequence
      * After all sequences processed call
      *     Call mergeSplitProcessor.process()
      */
@@ -261,9 +260,9 @@ public class GBSeqloader {
         // create a seq processor for the initial load
         seqResolver = new GBSeqloadAttributeResolver();
         if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
-            seqProcessor = new IncremSeqProcessor(mgdStream,
-                                                  rdrStream,
-                                                  seqResolver);
+            seqProcessor = new SeqProcessor(mgdStream,
+                                            rdrStream,
+                                            seqResolver);
         }
         // create a seq processor for incremental loads
         else if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
@@ -292,10 +291,6 @@ public class GBSeqloader {
                         SeqloaderExceptionFactory.RepeatFileIOException, e);
                 throw e1;
             }
-
-        }
-        else if (loadMode.equals(SeqloaderConstants.DELETE_RELOAD_MODE)) {
-            seqProcessor = new DRSeqProcessor(mgdStream, seqResolver);
         }
     }
     /**
@@ -358,27 +353,50 @@ public class GBSeqloader {
               // interpret next record
 
               si = (SequenceInput) iterator.next();
-              //System.out.println(si.getPrimaryAcc().getAccID());
+              System.out.println(si.getPrimaryAcc().getAccID());
           }
           catch (RecordFormatException e) {
               logger.logdErr(e.getMessage());
               errCtr++;
               continue;
           }
-          // Note:
-          // Exceptions that rise from resolving accessions are thrown
-          // out to main; indicates a bad LogicalDB value in the config file
-          // Exceptions that rise resolving reference associations are
-          // are thrown out to main; indicates a logicalDB other than MEDLINE
-          // or PubMed
-
           try {
-            if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
-                seqProcessor.processAddEvent(si);
-            }
-            else {
-              seqProcessor.processSequence(si);
-            }
+             seqProcessor.processInput(si);
+          }
+          // if we've found a repeated sequence in the input, go to the next
+          // sequence in the input
+          catch (RepeatSequenceException e) {
+              logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
+              continue;
+          }
+          catch (ChangedOrganismException e) {
+            logger.logdInfo(e.getMessage() + " Sequence: " +
+                            si.getPrimaryAcc().getAccID(), true);
+            errCtr++;
+            continue;
+          }
+
+          catch (ChangedLibraryException e) {
+              logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
+              errCtr++;
+              continue;
+          }
+          // if we can't resolve SEQ_Sequence attributes, go to the next
+          // sequence in the input
+          catch (SequenceResolverException e) {
+            logger.logdErr(e.getMessage() + " Sequence: " +
+                           si.getPrimaryAcc().getAccID());
+            errCtr++;
+            continue;
+          }
+          // if we can't resolve the source for a sequence, go to the next
+          // sequence in the input
+          catch (MSException e) {
+            logger.logdErr(e.getMessage() + " Sequence: " +
+                           si.getPrimaryAcc().getAccID());
+            errCtr++;
+            continue;
+          }
 
             //DEBUG
             seqCtr = passedCtr + errCtr;
@@ -390,106 +408,85 @@ public class GBSeqloader {
                 //logger.logdInfo("Total Memory Available to the VM: " + runTime.totalMemory(), false);
                 //logger.logdInfo("Free Memory Available: " + currentFreeMemory, false);
             }
-          }
-          // if we can't resolve SEQ_Sequence attributes, go to the next
-          // sequence in the input
-          catch (SequenceResolverException e) {
-            logger.logdErr(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID());
-            errCtr++;
-            continue;
-          }
-          // if we can't resolve the source for a sequence, go to the next
-          // sequence in the input
-          catch (MSException e) {
-            logger.logdErr(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID());
-            errCtr++;
-            continue;
-          }
-          // if we've found a repeated sequence in the input, go to the next
-          // sequence in the input
-          catch (RepeatSequenceException e) {
-            logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
-            continue;
-          }
-          catch (ChangedOrganismException e) {
-            logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
-            errCtr++;
-            continue;
-          }
-          catch (ChangedLibraryException e) {
-            logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
-            errCtr++;
-            continue;
-
-          }
 
           passedCtr++;
-          // Too much of a dog to do every sequence
-          //System.gc();
           sequenceStopWatch.stop();
-          logger.logdInfo("MEM&TIME: " + (passedCtr + errCtr) + "\t" + currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
+          logger.logdDebug("MEM&TIME: " + (passedCtr + errCtr) + "\t" +
+                           currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
         }
         loadStopWatch.stop();
         double totalLoadTime = loadStopWatch.time();
 
         // report total time for GBSeqloader.load()
-        logger.logdDebug("Total GBSeqloader.load() time in seconds: " + totalLoadTime +
-                         " time in minutes: " + (totalLoadTime/60));
+        logger.logdInfo("Total GBSeqloader.load() time in minutes: " + (totalLoadTime/60), true);
 
         // report Sequence Lookup execution times
         seqCtr = passedCtr + errCtr;
-        logger.logdDebug("Total Sequence Processed = " + seqCtr + " (" + errCtr + " had errors)");
-        logger.logdDebug("Average Processing Time/Sequence = " + (totalLoadTime / seqCtr));
+        logger.logdInfo("Total Sequence Processed = " + seqCtr + " (" + errCtr + " had errors)", false);
+        logger.logdInfo("Average Processing Time/Sequence = " + (totalLoadTime / seqCtr), false);
         if (seqCtr > 0) {
-          logger.logdDebug("Average SequenceLookup time = " +
-                           (seqProcessor.runningLookupTime / seqCtr));
+          logger.logdInfo("Average SequenceLookup time = " +
+                          (seqProcessor.runningLookupTime / seqCtr), false);
 
-          logger.logdDebug("Greatest SequenceLookup time = " + seqProcessor.highLookupTime);
-          logger.logdDebug("Least SequenceLookup time = " + seqProcessor.lowLookupTime);
+          logger.logdDebug("Greatest SequenceLookup time = " +
+                           seqProcessor.highLookupTime, false);
+          logger.logdDebug("Least SequenceLookup time = " +
+                           seqProcessor.lowLookupTime, false);
           // report MSProcessor execution times
           logger.logdDebug("Average MSProcessor time = " +
-                         (seqProcessor.runningMSPTime / seqCtr));
-          logger.logdDebug("Greatest MSProcessor time = " + seqProcessor.highMSPTime);
-          logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime);
+                           (seqProcessor.runningMSPTime / seqCtr), false);
+          logger.logdDebug("Greatest MSProcessor time = " +
+                           seqProcessor.highMSPTime, false);
+          logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime, false);
           // report free memory average
-          logger.logdDebug("Average Free Memory = " + runningFreeMemory / seqCtr);
-          logger.logdDebug("Organism Decider Counts:");
-
-          Vector deciderCts = organismChecker.getDeciderCounts();
-          for (Iterator i = deciderCts.iterator(); i.hasNext();) {
-              logger.logdDebug((String)i.next());
-          }
+          logger.logdDebug("Average Free Memory = " + (runningFreeMemory / seqCtr), false);
+          logger.logdInfo("Organism Decider Counts:", true);
         }
-        logger.logdDebug("Closing mgdStream");
-        // processes inserts, deletes and updates to mgd; method depends
-        // on the type of stream
+        Vector deciderCts = organismChecker.getDeciderCounts();
+          for (Iterator i = deciderCts.iterator(); i.hasNext(); ) {
+            logger.logdInfo( (String) i.next(), true);
+          }
+
+        // processes inserts, deletes and updates to mgd
+        logger.logdInfo("Closing mgdStream", false);
         mgdStream.close();
 
-        logger.logdDebug("Closing rdrStream");
-        // process qc inserts to the radar database
-        rdrStream.close();
+        if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
+          //  process merges and splits - note: all adds and updates must
+          // already be processed (mgdstream must already be closed).
+          logger.logdInfo("Processing Merge/Splits", true);
+          mergeSplitProcessor.process(mergeSplitScriptWriter);
+          mergeSplitScriptWriter.execute();
+          logger.logdInfo("Finished processing Merge/Splits", true);
 
-
-        // Process merges and splits if we have a MergeSplitProcessor
-        if(mergeSplitProcessor != null) {
-              logger.logdDebug("Processing Merge/Splits");
-              mergeSplitProcessor.process(mergeSplitScriptWriter);
-              mergeSplitScriptWriter.execute();
-              logger.logdDebug("Finished processing Merge/Splits");
+          // close the repeat sequence writer
+          try {
+            repeatSeqWriter.close();
+          }
+          catch (IOException e) {
+            SeqloaderException e1 =
+                (SeqloaderException) eFactory.getException(
+                SeqloaderExceptionFactory.RepeatFileIOException, e);
+            throw e1;
+          }
         }
 
-        if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
+        // Close rdrStream after all qc reporting has been done - Note that
+        // mergeSplitProcessor does qc reporting
+        logger.logdInfo("Closing rdrStream", false);
+        rdrStream.close();
 
-            try {
-              // close the repeat sequence writer
-              repeatSeqWriter.close();
-            }
-            catch (IOException e) {
-              SeqloaderException e1 =
-                  (SeqloaderException) eFactory.getException(
-                      SeqloaderExceptionFactory.RepeatFileIOException, e);
-              throw e1;
-          }
+        // report Event counts for sequences processed - Note that all
+        // Merge and Split events are also other events. e.g. if two sequences
+        // are merged into one new sequence than there will be an add
+        // event and two merge events. If a sequence is merged into an existing
+        // sequence then there will be an update event and one merge event.
+        // if a sequence is split into two new sequences then there will be two
+        // add events and one split event.
+
+        Vector eventReports = seqProcessor.getProcessedReport();
+        for(Iterator i = eventReports.iterator(); i.hasNext();) {
+              logger.logdInfo((String)i.next(), false);
         }
     }
 }
