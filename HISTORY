@@ -1,3 +1,15 @@
+DATE: 03/24/2004
+STAFF: sc
+CHANGES:
+1) gbseqload.sh - added temporary call to script to status a seq as deleted
+2) GBSeqloadAttributeResolver - now extends SequenceAttributeResolver 
+   since removing GBSeqAttributeResolver
+3) gbseqload.config.defaults - added SEQ_ prefixing to those
+   variables used by a Seqload configurator
+4) GBSeqloader - redid how we determine which SeqProcessor to instantiate.
+5) gbseqload.sh - added call to script to flag a sequence as deleted
+   for testing purposes
+
 TAG: gbseqload-1-0-7
 DATE: 03/19/2004
 STAFF: sc
