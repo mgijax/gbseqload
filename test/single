@@ -1,0 +1,100 @@
+LOCUS       AB000096                3133 bp    mRNA    linear   ROD 16-JAN-2002
+DEFINITION  Mus musculus mRNA for GATA-2 protein, complete cds.
+ACCESSION   AB000096
+VERSION     AB000096.2  GI:18181871
+KEYWORDS    GATA-2 protein.
+SOURCE      Mus musculus (house mouse)
+  ORGANISM  Mus musculus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Mus.
+REFERENCE   1
+  AUTHORS   Suwabe,N., Minegishi,N. and Yamamoto,M.
+  TITLE     mouse GATA-2 cDNA
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 3133)
+  AUTHORS   Yamamoto,M.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (25-DEC-1996) Masayuki Yamamoto, Institute of Basic
+            Medical Sciences, University of Tsukuba, Molecular and
+            Developmental Biology; Tennoudai, Tsukuba, Ibaragi 305, Japan
+            (E-mail:masi@tara.tsukuba.ac.jp, Tel:81-298-53-6073,
+            Fax:81-298-53-6965)
+COMMENT     On Jan 16, 2002 this sequence version replaced gi:1754585.
+FEATURES             Location/Qualifiers
+     source          1..3133
+                     /organism="Mus musculus"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:10090"
+                     /tissue_type="liver"
+                     /dev_stage="dpc 14.5"
+     CDS             155..1597
+                     /codon_start=1
+                     /product="GATA-2 protein"
+                     /protein_id="BAA19053.2"
+                     /db_xref="GI:18181872"
+                     /translation="MEVAPEQPRWMAHPAVLNAQHPDSHHPGLAHNYMEPAQLLPPDE
+                     VDVFFNHLDSQGNPYYANPAHARARVSYSPAHARLTGGQMCRPHLLHSPGLPWLDGGK
+                     AALSAAAAHHHSPWTVSPFSKTPLHPSAAGAPGGPLSVYPGAAGGSGGGSGSSVASLT
+                     PTAAHSGSHLFGFPPTPPKEVSPDPSTTGAASPASSSAGGSVARGEDKDGVKYQVSLS
+                     ESMKMEGGSPLRPGLATMGTQPATHHPIPTYPSYVPAAAHDYGSSLFHPGGFLGGPAS
+                     SFTPKQRSKARSCSEGRECVNCGATATPLWRRDGTGHYLCNACGLYHKMNGQNRPLIK
+                     PKRRLSAARRAGTCCANCQTTTTTLWRRNANGDPVCNACGLYYKLHNVNRPLTMKKEG
+                     IQTRNRKMSSKSKKSKKGAECFEELSKCMQEKSPPFSAAALAGHMAPVGHLPPFSHSG
+                     HILPTPTPIHPSSSLSFGHPHPSSMVTAMG"
+     polyA_site      3133
+                     /note="16 A nucleotides"
+ORIGIN
+        1 gcggccgcgc tgactcccgc gggccgacca gccacgccgc tcacaccgct gcctccctgc
+       61 tgagccctgg ccgtggccgc ccgagggcgc cgcccaccgc gccgcagtcg ggccgcccca
+      121 ccttcgcctg gttcccaaga cacagtagtg gaccatggag gtggcgcctg agcagcctcg
+      181 ctggatggcg caccccgccg tattgaatgc gcagcacccc gactcgcacc atccgggcct
+      241 ggcgcataac tacatggagc cagcacagct gctgcctccc gacgaggtgg atgtcttctt
+      301 caaccatctc gactcgcagg gcaaccctta ctacgccaac ccggcccacg cgcgcgcgcg
+      361 cgtttcctac agcccggcgc atgcccgtct caccggaggc cagatgtgcc gaccacactt
+      421 gttgcacagc ccaggcttgc cgtggctgga cgggggcaaa gcagctctct ctgccgccgc
+      481 tgcccatcac cacagtccct ggaccgtcag cccgttctcc aagaccccgc tgcacccctc
+      541 agctgctgga gcacccggag ggcctctgtc tgtttaccca ggggctgcgg gtgggagcgg
+      601 gggaggcagt gggagctccg tggcctccct cacccccact gcagcccact cgggctccca
+      661 tctcttcggc ttcccaccca cgccacccaa agaagtgtct ccagacccca gcacaacagg
+      721 agctgcttcc ccggcctctt cttctgcagg gggtagtgta gcccggggtg aggacaagga
+      781 tggcgtcaag taccaagtgt cactctccga gagcatgaag atggaaggcg gcagtcccct
+      841 gcgcccgggc ctagctacca tgggcaccca gcctgcaaca caccacccga tacccaccta
+      901 tccctcctat gtgcccgccg cagctcatga ctatggcagc agtctcttcc atccaggagg
+      961 cttcctgggt ggccccgcct ccagcttcac ccctaagcag agaagcaagg ctcgctcctg
+     1021 ctcagaaggc cgggagtgtg tcaactgtgg tgccacagcc acccctctct ggcgacgaga
+     1081 tggcacgggc cactacctgt gcaatgcctg tgggctctac cacaagatga atggacagaa
+     1141 ccggccgctc atcaagccca agcggaggct gtctgctgcc agaagagcgg gcacctgttg
+     1201 tgcaaattgt cagacgacaa ccaccacctt atggcgccgg aacgccaacg gggaccctgt
+     1261 gtgcaacgcc tgtggcctct actacaagct gcacaatgtt aacaggccac tgaccatgaa
+     1321 gaaggaaggg atccagaccc ggaatcggaa gatgtccagc aaatccaaga agagcaagaa
+     1381 aggggctgaa tgtttcgagg agctctccaa gtgcatgcaa gagaagtcac cgcccttcag
+     1441 tgcggctgcc ctggctggac acatggcacc tgtgggacac ctcccacctt ttagtcactc
+     1501 tggacacatc ctacccacgc ccacgcctat ccacccttcc tccagtctct cttttggcca
+     1561 cccccacccg tccagcatgg tgactgccat gggctaggca agcctcccac tggacagaca
+     1621 tggacatcaa gggtggtttg gcagaaccag agcgaggctg ggcactccca ggatgggtgg
+     1681 aacatactct tggctcccgc ccatcccaag agacccactt cctcctgcca gcctagcctg
+     1741 gccgaagcca cctctccttg gaggactccc agccttgtgc cgccattact gtgaatattt
+     1801 ctaactgggc tgcagctcgc gtgtgcccgg ggtgctgccc agaaaagtgt tttcacggag
+     1861 agtgtttgtt tggagagcaa aatggacagg tttacagatt tatagcaaga agagactggg
+     1921 gatagaaaaa tgaaaccttt ttttttcttt ttcttttttt cttcttctgt tttatttttt
+     1981 tgatggagaa aggagtaggc aagaagaaaa ataatttatt ttgctcttat ttcttacaag
+     2041 aacgtgaaga catggaggcg tgtgctattt gtgttcttgg ggtccttctt tgggacctcc
+     2101 tgccaccagt cagggctctc gggggcagac ttagaggtcc tcagcctgag cctccttcac
+     2161 cccagcctgc ctgcagggta gcccctgccc tgacgcagcc ctagagggca gagacaattg
+     2221 caggcggtcc tgcgcagatt cccaggccag ggctgggtca caggaaggaa acattctctg
+     2281 gaaaggggaa acgtctccca gatcattccc ctggcttcca gaggccaaag ctggtgtgac
+     2341 ccaaatgggc cagagctgca gcctgtgctc taggccagtc ggacccctgt aaatacaacc
+     2401 ttcttttctg ctaaaccctc ggccccctcc ccctctaaga taaataagaa aatactcaaa
+     2461 gcgaaaacca aactgcataa gcttaacccg ctgatgagtg gttttatttt gaaactcgtt
+     2521 ttttgggtcc agtcaattgt acgttgccac agaagccccg ctatggaaaa aaataaataa
+     2581 aacctacaaa ccaggcctga gcttcacagt cctttgagtg gttcttgggt cccacagccc
+     2641 tggcaggggg ctcgggacaa gggggaatct tatgctcttg gtttctggga gacagggggc
+     2701 aggcaggcag tggccctgtg atcccaggct tctgttctgc tgtggctggc tgaatccttc
+     2761 aaggtacagt tgtacataaa aagtgtccca agcttcgatt ctgtgtgtgg tggtggcagt
+     2821 ggtgcagcag ccagcaaggg ggccccgagt gagcccaggg agacgattgt gctgagtcaa
+     2881 ccaagtgcaa tatcggtgtc cagttgctgc agagcaccct aaccggaagt aacttatttt
+     2941 gtgctagtac ccgcataaga gaagaatcgg cagcattttc tgtttttatg ttttgggctt
+     3001 ggtttatttt gaattagtga cctaagttat tgttaactgt gtacaacatt taaatattgt
+     3061 ctgtaaaaat tgtatgctac cctcttattc ctttaaagtg aatactgtta aaaataataa
+     3121 aatacttttt gtg
+//
