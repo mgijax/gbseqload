@@ -24,6 +24,7 @@ import org.jax.mgi.shr.dla.seqloader.SeqEventDetector;
 import org.jax.mgi.shr.dla.seqloader.SequenceInput;
 import org.jax.mgi.shr.dla.seqloader.SequenceAttributeResolver;
 import org.jax.mgi.shr.dla.seqloader.GBOrganismChecker;
+import org.jax.mgi.shr.dla.seqloader.SeqQCReporter;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderException;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderExceptionFactory;
 import org.jax.mgi.shr.dla.seqloader.SequenceResolverException;
@@ -46,6 +47,7 @@ import org.jax.mgi.shr.dbutils.dao.BCP_Batch_Stream;
 import org.jax.mgi.shr.dbutils.dao.BCP_Script_Stream;
 import org.jax.mgi.shr.dbutils.ScriptWriter;
 import org.jax.mgi.shr.config.ScriptWriterCfg;
+import org.jax.mgi.shr.dbutils.ScriptException;
 import org.jax.mgi.shr.exception.MGIException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
 import org.jax.mgi.shr.ioutils.IOUException;
@@ -110,9 +112,15 @@ public class GBSeqloader {
     // A bcp manager for handling bcp inserts to the MGD database
     private BCPManager mgdBcpMgr = null;
 
-    // A stream for handling MGD DAO objects
-    private ScriptWriterCfg scriptCfg = null;
-    private ScriptWriter scriptWriter = null;
+    // ScriptWriter and Script cfg for writing and exec'ing update script
+    private ScriptWriterCfg updateScriptCfg = null;
+    private ScriptWriter updateScriptWriter = null;
+
+    // ScriptWriter and Script cfg for writing and exec'ing mergeSplit script
+    private ScriptWriterCfg mergeSplitScriptCfg = null;
+    private ScriptWriter mergeSplitScriptWriter = null;
+
+     // A stream for handling MGD DAO objects
     private BCP_Script_Stream mgdStream = null;
     //private BCP_Batch_Stream mgdStream = null;
     //private BCP_Inline_Stream mgdStream = null;
@@ -123,8 +131,11 @@ public class GBSeqloader {
     // A bcp manager for handling bcp inserts to the Radar database
     private BCPManager rdrBcpMgr = null;
 
-    // A stream for handling RDR DAO objects
+    // A stream for handling RDR DAO objects for QC reporting
     private BCP_Inline_Stream rdrStream = null;
+
+    // A QC reporter for managing all qc reports for the seqloader
+    private SeqQCReporter qcReporter = null;
 
     // resolves GenBank sequence attributes to MGI values
     private SequenceAttributeResolver seqResolver;
@@ -143,7 +154,7 @@ public class GBSeqloader {
     /**
      * For each sequence record in the input
      *    create a SequenceInput object
-     *    Call GBSequenceProcessor.processSequence(SequenceInput)
+     *    Call SeqProcessor.processSequence(SequenceInput)
      * :Sequence
      * After all sequences processed call
      *     Call mergeSplitProcessor.process()
@@ -224,9 +235,10 @@ public class GBSeqloader {
         // Create a stream for handling MGD DAO objects.
         //mgdStream = new BCP_Batch_Stream(mgdSqlMgr, mgdBcpMgr);
         //mgdStream = new BCP_Inline_Stream(mgdSqlMgr, mgdBcpMgr);
-        scriptCfg = new ScriptWriterCfg("MGD");
-        scriptWriter = new ScriptWriter(scriptCfg, mgdSqlMgr);
-        mgdStream = new BCP_Script_Stream(scriptWriter, mgdBcpMgr);
+        updateScriptCfg = new ScriptWriterCfg("MGD");
+        updateScriptWriter = new ScriptWriter(updateScriptCfg, mgdSqlMgr);
+
+        mgdStream = new BCP_Script_Stream(updateScriptWriter, mgdBcpMgr);
 
         /**
          * Set up RDR stream
@@ -241,24 +253,28 @@ public class GBSeqloader {
         rdrBcpMgr.setSQLDataManager(rdrSqlMgr);
         rdrBcpMgr.setLogger(logger);
 
-        // Create a stream for handling RDR DAO objects.
+        // Create qc reporter
         rdrStream = new BCP_Inline_Stream(rdrSqlMgr, rdrBcpMgr);
+        qcReporter = new SeqQCReporter(rdrStream);
 
-
-
+        // create a seq processor for the initial load
         seqResolver = new GBSeqloadAttributeResolver();
         if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
             seqProcessor = new IncremSeqProcessor(mgdStream,
                                                   rdrStream,
                                                   seqResolver);
-                                                  //mergeSplitProcessor,
-                                                  //repeatSeqWriter);
         }
+        // create a seq processor for incremental loads
         else if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
-            //mergeSplitProcessor = new MergeSplitProcessor();
-            // passing in a null merge split processor until it is tested
+            mergeSplitProcessor = new MergeSplitProcessor(qcReporter);
+            // Note: here I want to use the default prefixing, so normally
+            // wouldn't need to pass a Configurator, but the ScriptWriter(sqlMgr)
+            // is a protected constructor
+            mergeSplitScriptCfg = new ScriptWriterCfg();
+            mergeSplitScriptWriter = new ScriptWriter(mergeSplitScriptCfg, mgdSqlMgr);
             seqProcessor = new IncremSeqProcessor(mgdStream,
                                                   rdrStream,
+                                                  qcReporter,
                                                   seqResolver,
                                                   mergeSplitProcessor,
                                                   repeatSeqWriter);
@@ -304,7 +320,8 @@ public class GBSeqloader {
     private void load ()
         throws ConfigException, CacheException, DBException,
             KeyNotFoundException, IOUException, DLALoggingException,
-             MSException, TranslationException, SeqloaderException {
+             MSException, TranslationException, ScriptException,
+             SeqloaderException {
         // DEBUG stuff
 
         // Timing the load
@@ -420,7 +437,7 @@ public class GBSeqloader {
 
         // report Sequence Lookup execution times
         seqCtr = passedCtr + errCtr;
-        logger.logdDebug("Total Sequence Processed = " + seqCtr);
+        logger.logdDebug("Total Sequence Processed = " + seqCtr + " (" + errCtr + " had errors)");
         logger.logdDebug("Average Processing Time/Sequence = " + (totalLoadTime / seqCtr));
         if (seqCtr > 0) {
           logger.logdDebug("Average SequenceLookup time = " +
@@ -442,22 +459,26 @@ public class GBSeqloader {
               logger.logdDebug((String)i.next());
           }
         }
-
-
-
-        // Process merges and splits if we have a MergeSplitProcessor
-        if(mergeSplitProcessor != null) {
-            mergeSplitProcessor.process();
-        }
-        // processes inserts, deletes and updates to the database; method depends
+        logger.logdDebug("Closing mgdStream");
+        // processes inserts, deletes and updates to mgd; method depends
         // on the type of stream
         mgdStream.close();
 
+        logger.logdDebug("Closing rdrStream");
         // process qc inserts to the radar database
         rdrStream.close();
+
+        logger.logdDebug("Processing Merge/Splits");
+        // Process merges and splits if we have a MergeSplitProcessor
+        if(mergeSplitProcessor != null) {
+              mergeSplitProcessor.process(mergeSplitScriptWriter);
+              mergeSplitScriptWriter.execute();
+        }
+        logger.logdDebug("Finished processing Merge/Splits");
         if (loadMode.equals(SeqloaderConstants.INCREM_LOAD_MODE)) {
-            // close the repeat sequence writer
+
             try {
+              // close the repeat sequence writer
               repeatSeqWriter.close();
             }
             catch (IOException e) {
