@@ -53,11 +53,12 @@ export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
 # RADAR Connection parameters 
 RADAR_DBSERVER=DEV1_MGI
 RADAR_DBURL=rohan.informatics.jax.org:4101
-RADAR_DBNAME=radar_release
+RADAR_DBNAME=radar_jsam
+#RADAR_DBNAME=radar_release
 RADAR_DBUSER=mgd_dbo
 RADAR_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
+RADAR_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/radar_jsam/radardbschema
 #RADAR_DBSCHEMADIR=/home/sc/jsam/radardbschema
-RADAR_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/radar_release/radardbschema
 
 export RADAR_DBSERVER RADAR_DBURL RADAR_DBNAME RADAR_DBUSER 
 export RADAR_DBPASSWORDFILE RADAR_DBSCHEMADIR 
@@ -101,11 +102,13 @@ GBSEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqloader
 #  loader shell script
 GBSEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
 
-#  seqloader QC report shell script
-# this script doesn't yet exist
-GBSEQLOAD_QCRPT=${QCRPTDIR}/gbseqloadRpt.sh
+# seqloader QC report script
+SEQLOAD_QCRPT=${QCRPTDIR}/seqload/runQC.csh
 
-export GBSEQLOAD_APP GBSEQLOAD_SH GBSEQLOAD_QCRPT
+# molecular source processor QC report script
+MSP_QCRPT=${QCRPTDIR}/msp/runQC.csh
+
+export GBSEQLOAD_APP GBSEQLOAD_SH SEQLOAD_QCRPT MSP_QCRPT
 
 #  Path name of the data, report, log and archive directories
 FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload-1-0-3
@@ -212,7 +215,7 @@ export MGD_BCP_PATH MGD_BCP_PREVENT_EXECUTE MGD_BCP_TRUNCATE_LOG
 export MGD_BCP_DROP_INDEXES MGD_BCP_RECORD_STAMPING MGD_BCP_AUTO_FLUSH
 export MGD_BCP_OK_TO_OVERWRITE
 
-#  Settings used to create a BCP manager for the MGD database
+#  Settings used to create a BCP manager for the RADAR database
 RADAR_BCP_PATH=${FILEDIR}/data
 RADAR_BCP_PREVENT_EXECUTE=false
 RADAR_BCP_TRUNCATE_LOG=true
@@ -286,6 +289,9 @@ export MAIL_LOG_PROC MAIL_LOG_CUR
 # repeat file processing
 ##########################
 
+# process repeat file if true
+PROCESS_REPEATS=false
+
 # repeat file directory
 REPEAT_FILEDIR=${FILEDIR}/data
 
@@ -298,5 +304,6 @@ SEQ_REPEAT_FILE=${REPEAT_FILEDIR}/${REPEAT_FILENAME}
 # rename repeat file to this name for processing
 REPEAT_TO_PROCESS=${SEQ_REPEAT_FILE}.to.process
 
-export REPEAT_FILEDIR REPEAT_FILENAME SEQ_REPEAT_FILE REPEAT_TO_PROCESS
+export PROCESS_REPEATS REPEAT_FILEDIR REPEAT_FILENAME
+export SEQ_REPEAT_FILE REPEAT_TO_PROCESS
 
