@@ -1,3 +1,15 @@
+TAG: gbseqload-1-0-6
+DATE: 02/27/2004
+STAFF: sc
+RELEASE:
+CHANGES: 
+1) Factored out interpretor and resolver so they may be shared with RefSeq
+   Moved factored resolver and interpreter superclasses to lib_java_dla
+   Created subclasses that are load specific
+2) tightened up gbseqload.config.defaults
+3) Install - Added tee output from application to profiler
+             Added creation of the bcp file directory
+
 TAG: gbseqload-1-0-5
 DATE: 02/19/2004
 STAFF: sc
