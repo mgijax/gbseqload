@@ -1,5 +1,7 @@
+TAG: gbseqload-1-0-8
 DATE: 04/06/2004
 STAFF: sc
+RELEASE:dev
 CHANGES:
 1) gbseqload.sh and gbseqload.config.defaults - added CAT_METHOD
 2) gbseqload.config.defaults - added SEQ_ prefixing
