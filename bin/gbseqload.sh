@@ -174,11 +174,13 @@ echo "JOBKEY=${JOBKEY}" >> ${LOG_PROC}
 #
 echo "\n`date`" >> ${LOG_PROC}
 
-#echo 'Partitioning ACC_Accession, SEQ_Sequence, SEQ_Source_Assoc'
+echo 'Partitioning ACC_Accession, SEQ_Sequence, SEQ_Source_Assoc'
 ${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 
+#gunzip -c 
+#cat 
 cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xloggc:${LOGDIR}/gbseqloadGCStatus.txt -Xprof ${GBSEQLOAD_APP} | tee -a ${LOGDIR}/gbseqloadProfile.txt
 
 #-Xrunhprof:file=${LOGDIR}/gbseqloadProfile.txt,format=b ${GBSEQLOAD_APP}
