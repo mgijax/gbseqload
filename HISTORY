@@ -1,3 +1,19 @@
+TAG: gbseqload-1-0-20
+DATE: 10/22/2004
+STAFF: sc
+RELEASE: dev
+CHANGES: TR5395
+1) index.html - fixed path to a QC report
+2) GBSeqloader - changed name of method getRecordDataIterator() to
+   getDataIterator()
+3) gbseqload.sh - added parameter to preload to archive the output dir
+                - added call to cleanDir to clean the output and report dirs
+4) gbseqload.config.defaults - changed BCP_Inline_Stream to BCP_Stream                
+DATE: 08/16/2004
+STAFF: sc
+CHANGES:
+1) added changed library report to index page.
+
 TAG: gbseqload-1-0-19
 DATE: 07/14/2004
 STAFF: sc
