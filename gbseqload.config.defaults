@@ -36,11 +36,12 @@ export INSTALLDIR DBUTILSDIR QCRPTDIR
 # MGD Connection parameters 
 MGD_DBSERVER=DEV1_MGI
 MGD_DBURL=rohan.informatics.jax.org:4101
-MGD_DBNAME=mgd_jsam
+MGD_DBNAME=mgd_jsamlec
 #MGD_DBNAME=mgd_jsamsc
 MGD_DBUSER=mgd_dbo
 MGD_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
-MGD_DBSCHEMADIR=/home/sc/jsam/mgddbschema
+MGD_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/mgd_jsamlec/mgddbschema
+#MGD_DBSCHEMADIR=/home/sc/jsam/mgddbschema
 
 export MGD_DBSERVER MGD_DBURL MGD_DBNAME
 export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
@@ -51,7 +52,8 @@ RADAR_DBURL=rohan.informatics.jax.org:4101
 RADAR_DBNAME=radar_release
 RADAR_DBUSER=mgd_dbo
 RADAR_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
-RADAR_DBSCHEMADIR=/home/sc/jsam/radardbschema
+#RADAR_DBSCHEMADIR=/home/sc/jsam/radardbschema
+RADAR_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/radar_release/radardbschema
 
 export RADAR_DBSERVER RADAR_DBURL RADAR_DBNAME RADAR_DBUSER RADAR_DBPASSWORDFILE
 export RADAR_DBSCHEMADIR 
@@ -64,9 +66,11 @@ export RADAR_DBSCHEMADIR
 
 JAVA_HOME=/usr/j2se
 JAVA_RUN=${JAVA_HOME}/bin/java
-JAVARUNTIMEOPTS=-Xmx2000m      # allow 2G memory limit
+JAVARUNTIMEOPTS="-Xms2g -Xmx2g"      # allow 2G initial and max heap memory 
 
-CLASSPATH=./usr/local/mgi/3.0/lib/java/gbseqload.jar:/usr/local/mgi/3.0/lib/javacore.jar:/usr/local/mgi/3.0/lib/java/dbsmgd.jar:/usr/local/mgi/3.0/lib/java/dbsrdr.jar:/usr/local/mgi/3.0/lib/java/dla.jar:/usr/local/mgi/3.0/lib/java:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar:/usr/local/mgi/3.0/lib/java1.4/class
+JAVA_LIB=/usr/local/mgi/3.0/lib/java1.4/dla.jar:/usr/local/mgi/3.0/lib/java1.4/core.jar:/usr/local/mgi/3.0/lib/java1.4/dbsmgd.jar:/usr/local/mgi/3.0/lib/java1.4/dbsrdr.jar
+
+CLASSPATH=.:${INSTALLDIR}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
 
 #CLASSPATH=.:/home/sc/jsam/gbseqload/classes:/home/sc/jsam/lib_java_core/classes:/home/sc/jsam/lib_java_dbsmgd/classes:/home/sc/jsam/lib_java_dbsrdr/classes:/home/sc/jsam/lib_java_dla/classes:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar
 
@@ -97,7 +101,7 @@ GBSEQLOAD_QCRPT=${QCRPTDIR}/gbseqloadRpt.sh
 export GBSEQLOAD_APP GBSEQLOAD_SH GBSEQLOAD_QCRPT
 
 #  Path name of the data, report, log and archive directories
-FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
+FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload-1-0-3
 DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 
 LOGDIR=${FILEDIR}/logs
@@ -107,10 +111,21 @@ ARCHIVEDIR=${FILEDIR}/archive
 export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 
 #  Complete path name of the GenBank input file
-INFILE_NAME=STDIN
+INFILE_NAME=${DATADIR}/gbmusmgianymarker.seq
 
 # GenBank sequence record delimiter
-INFILE_END_DELIMITER="^//"
+#INFILE_END_DELIMITER="^//"
+INFILE_END_DELIMITER=ORIGIN\n
+
+# GenBank sequence record start delimiter
+INFILE_BEGIN_DELIMITER=LOCUS
+
+# true = regex matching for finding record delim is turned on
+INFILE_USE_REGEX=false
+
+# buffersize in bytes used by nio.ByteBuffer
+# 21,000,000 = ~20 MB
+INFILE_BUFFERSIZE=21000000
 
 # incremental, incremental_initial, or delete_reload
 # incremental_initial doesn't use a MergeSplitProcessor
@@ -120,7 +135,8 @@ LOAD_MODE=incremental_initial
 # once in the input
 REPEAT_FILE=${FILEDIR}/data/repeats.out
 
-export INFILE_NAME INFILE_DELIMITER LOAD_MODE REPEAT_FILE
+export INFILE_NAME INFILE_END_DELIMITER INFILE_BEGIN_DELIMITER 
+export INFILE_USE_REGEX INFILE_BUFFERSIZE LOAD_MODE REPEAT_FILE 
 
 # true if a virtual (computationally derived) sequence
 VIRTUAL=false
@@ -166,7 +182,7 @@ export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL LOG_DEBUG
 
 #  Settings used to create a BCP manager for the MGD database
 MGD_BCP_PATH=${FILEDIR}/data
-MGD_BCP_PREVENT_EXECUTE=true
+MGD_BCP_PREVENT_EXECUTE=false
 MGD_BCP_TRUNCATE_LOG=true
 MGD_BCP_DROP_INDEXES=true
 MGD_BCP_RECORD_STAMPING=false
@@ -179,7 +195,7 @@ export MGD_BCP_OK_TO_OVERWRITE
 
 #  Settings used to create a BCP manager for the MGD database
 RADAR_BCP_PATH=${FILEDIR}/data
-RADAR_BCP_PREVENT_EXECUTE=true
+RADAR_BCP_PREVENT_EXECUTE=false
 RADAR_BCP_TRUNCATE_LOG=true
 RADAR_BCP_DROP_INDEXES=true
 RADAR_BCP_RECORD_STAMPING=false
@@ -198,7 +214,7 @@ export RADAR_BCP_OK_TO_OVERWRITE
 
 # setting used to create a ScriptWriter for the MGD database
 MGD_SCP_PATH=${MGD_BCP_PATH}
-MGD_SCP_PREVENT_EXECUTE=true
+MGD_SCP_PREVENT_EXECUTE=false
 MGD_SCP_OK_TO_OVERWRITE=false
 
 # Use default = script
