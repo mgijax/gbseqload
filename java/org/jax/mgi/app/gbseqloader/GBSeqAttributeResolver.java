@@ -32,13 +32,7 @@ import org.jax.mgi.dbs.mgd.trans.TranslationException;
  */
 
 public class GBSeqAttributeResolver extends SequenceAttributeResolver {
-    /*private SEQ_SequenceState state;
-    private Integer sequenceTypeKey;
-    private Integer sequenceQualityKey;
-    private Integer sequenceStatusKey;
-    private Integer sequenceProviderKey;
-    private String division;
-*/
+
     /**
     * Constructs a GBSeqAttributeResolver.
     * @assumes Nothing
