@@ -155,6 +155,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
         rawSeq.reset();
         ms.reset();
 
+        // set the record attribute of the SequenceRawAttributes
+        rawSeq.setRecord(rcd);
+
         // split the record into lines
         StringTokenizer lineSplitter = new StringTokenizer(rcd, SeqloaderConstants.CRT);
         String line;
@@ -328,10 +331,7 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      */
 
     public boolean isValid(String record) {
-        // TEMP for gbseqloader-slim
-        m = organismPattern.matcher(record);
-
-        return (! m.find() && organismChecker.checkOrganism(record));
+        return (organismChecker.checkOrganism(record));
     }
 
     /**
@@ -642,7 +642,7 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
         else {
             rawSeq.setDescription(definition.substring(12));
         }
-         System.out.println(definition.substring(12));
+         //System.out.println(definition.substring(12));
     }
 
     /**
@@ -756,6 +756,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 }
 
 //  $Log$
+//  Revision 1.3  2004/01/07 19:01:04  sc
+//  updated import statement for StringLib
+//
 //  Revision 1.2  2003/12/20 16:32:01  sc
 //  Changed from code review
 //
