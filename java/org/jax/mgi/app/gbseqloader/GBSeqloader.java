@@ -362,6 +362,7 @@ public class GBSeqloader {
               errCtr++;
               continue;
           }
+
           try {
              seqProcessor.processInput(si);
           }
@@ -418,7 +419,7 @@ public class GBSeqloader {
           }
 
             //DEBUG
-            //currentFreeMemory = runTime.freeMemory();
+            currentFreeMemory = runTime.freeMemory();
             //runningFreeMemory = runningFreeMemory + currentFreeMemory;
 
             seqCtr = passedCtr + errCtr;
