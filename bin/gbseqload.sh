@@ -175,17 +175,11 @@ echo "JOBKEY=${JOBKEY}" >> ${LOG_PROC}
 echo "\n`date`" >> ${LOG_PROC}
 
 #echo 'Partitioning ACC_Accession, SEQ_Sequence, SEQ_Source_Assoc'
-#${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
-#${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
-#${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
+${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
+${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
+${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/rat_cavia_mus_human |
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/data 
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small2.seq 
-
-cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small2.seq | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} ${GBSEQLOAD_APP}
+${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xprof ${GBSEQLOAD_APP} > ${LOGDIR}/gbseqloadProfile.txt
 
 STAT=$?
 if [ ${STAT} -ne 0 ]
