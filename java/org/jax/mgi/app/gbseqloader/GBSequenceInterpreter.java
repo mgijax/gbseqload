@@ -161,13 +161,13 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 
         // re-initialize vars that hold sequence record sections for later parsing
         locus = null;
-        definition.setLength(0);
-        accession.setLength(0);
+        definition = new StringBuffer();
+        accession = new StringBuffer();
         version = null;
         organism = null;
-        classification.setLength(0);
-        reference.setLength(0);
-        source.setLength(0);
+        classification = new StringBuffer();
+        reference = new StringBuffer();
+        source = new StringBuffer();
 
         // reset reused instance variables
         sequenceInput.reset();
@@ -775,6 +775,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 }
 
 //  $Log$
+//  Revision 1.5  2004/02/11 15:51:54  sc
+//  moved some local vars to class vars so we dont have to create a new StringBuffer each time (just set its length to 0
+//
 //  Revision 1.4  2004/02/02 19:33:06  sc
 //  Removed code in isValid() that checked for named libraries - vestige of GBSeqloaderIntial.java
 //
