@@ -1,3 +1,29 @@
+DATE: 04/27/2004
+STAFF: sc
+CHANGES:
+1) GBSeqloader - now uses SequenceAttributeResolver instead of 
+   GBSeqloadAttributeResolver added some curation logging
+2) GBSequenceInterpreter - moved creation of provider string 
+   from GBSeqloadAttributeResolver
+3) removed GBSeqloadAttributeResolver
+
+DATE: 04/23/2004
+STAFF: sc
+CHANGES:
+1) gbseqload.config.defaults - changed RADAR default db, changed
+    GBSEQLOAD_QCRPT to SEQLOAD_QCRPT, added MSP_QCRPT, added
+    PROCESS_REPEATS to toggle repeat processinga
+2) gbseqload.sh - restructured - created run function to accomodate
+    repeat sequence processing. Added SEQ and MSP QC reporting. Now
+    uses DLAfunction.sh preload and postload functions
+
+DATE: 04/13/2004
+STAFF: sc
+CHANGES:
+1) GBSeqloader.java - added logging to logp
+2) gbseqload.config.defaults - changed RADARDBUTILSDIR path and added repeat
+   sequence processing variables
+
 TAG: gbseqload-1-0-8
 DATE: 04/06/2004
 STAFF: sc
