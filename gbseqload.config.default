@@ -1,11 +1,11 @@
 #format: sh
 #
-#  gbseqload.config.defaults
+#  gbseqload.config.default
 #
 #  This file sets up environment variables that are needed for the
 #  GenBank Sequence load
 #
-#  The default values are set to process the initial Genbank Release
+#  The default values are set to process the GenBank non-cums
 ###########################################################################
 
 ###########################################################################
