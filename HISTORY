@@ -1,8 +1,18 @@
+TAG: gbseqload-1-0-17
+DATE: 06/30/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: TR5916, TR5986
+1) README.Install - updated example with correct path to mgietc (etc)
+2) gbseqload.config.defaults - Added overriding of default qc stream by 
+   setting DLA_QC_STREAM. Added MAIL_LOADNAME
+3) gbseqload.sh - removed call to mailLog as it is done in postload now
+
 TAG: gbseqload-1-0-16
 DATE: 06/30/2004
 STAFF: sc
 RELEASE: prod
-CHANGES:
+CHANGES: TR5916, TR5986
 1) gbseqload.config.defaults - reversed prefixing for update and mergeSplit 
    SCP vars. DLALoader looks for unprefixed vars to create the update script.
    Added DLA_DB_PREFIX=MGD even though this is the default value - just to make
