@@ -1,7 +1,13 @@
+TAG: gbseqload-1-0-18
+DATE: 07/12/2004
+STAFF: sc
+RELEASE: dev
+CHANGES: 5925 TPA processing
+
 TAG: gbseqload-1-0-17
 DATE: 06/30/2004
 STAFF: sc
-RELEASE: prod
+RELEASE: dev
 CHANGES: TR5916, TR5986
 1) README.Install - updated example with correct path to mgietc (etc)
 2) gbseqload.config.defaults - Added overriding of default qc stream by 
@@ -11,7 +17,7 @@ CHANGES: TR5916, TR5986
 TAG: gbseqload-1-0-16
 DATE: 06/30/2004
 STAFF: sc
-RELEASE: prod
+RELEASE: dev
 CHANGES: TR5916, TR5986
 1) gbseqload.config.defaults - reversed prefixing for update and mergeSplit 
    SCP vars. DLALoader looks for unprefixed vars to create the update script.
