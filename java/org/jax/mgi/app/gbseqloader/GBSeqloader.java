@@ -23,6 +23,7 @@ import org.jax.mgi.shr.dla.seqloader.DRSeqProcessor;
 import org.jax.mgi.shr.dla.seqloader.SeqEventDetector;
 import org.jax.mgi.shr.dla.seqloader.SequenceInput;
 import org.jax.mgi.shr.dla.seqloader.SequenceAttributeResolver;
+import org.jax.mgi.shr.dla.seqloader.GBOrganismChecker;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderException;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderExceptionFactory;
 import org.jax.mgi.shr.dla.seqloader.SequenceResolverException;
@@ -245,7 +246,7 @@ public class GBSeqloader {
 
 
 
-        seqResolver = new GBSeqAttributeResolver();
+        seqResolver = new GBSeqloadAttributeResolver();
         if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
             seqProcessor = new IncremSeqProcessor(mgdStream,
                                                   rdrStream,
