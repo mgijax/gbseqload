@@ -205,19 +205,6 @@ fi
 run
 
 #
-# temporarily call during testing to create a sequence statused as deleted
-#
-/home/lec/db/mgidbmigration/JSAM/deletedSequence.csh ${MGD_DBSCHEMADIR}
-STAT=$?
-if [ ${STAT} -ne 0 ]
-then
-    echo "status sequence as deleted failed.  \
-        Return status: ${STAT}" >> ${LOG_PROC}
-    shutDown
-    exit 1
-fi
-
-#
 # run any repeat files if configured to do so
 #
 if [ ${PROCESS_REPEATS} = true ]
