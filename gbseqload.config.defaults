@@ -5,6 +5,7 @@
 #  This file sets up environment variables that are needed for the
 #  GenBank Sequence load
 #
+#  The default values are set to process the initial Genbank Release
 ###########################################################################
 
 ###########################################################################
@@ -14,20 +15,20 @@
 ###########################################################################
 
 #  Installation directory for the GenBank sequence load
-INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
-#INSTALLDIR=/home/sc/jsam/gbseqload
+INSTALLDIR=/usr/local/mgi/live/dataload/gbseqload
+#INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
 
 #  Installation directory for the DB utilities product
-DBUTILSDIR=/usr/local/mgi/3.0/dbutils/mgidbutilities
-#DBUTILSDIR=/home/sc/jsam/mgidbutilities
+DBUTILSDIR=/usr/local/mgi/live/dbutils/mgidbutilities
+#DBUTILSDIR=/usr/local/mgi/3.0/dbutils/mgidbutilities
 
 # Installation directory for the radar dbutilites product
-RADARDBUTILSDIR=/usr/local/mgi/3.0/dbutils/radardbutilities
-#RADARDBUTILSDIR=/home/sc/jsam/radardbutilities 
+RADARDBUTILSDIR=/usr/local/mgi/live/dbutils/radardbutilities
+#RADARDBUTILSDIR=/usr/local/mgi/3.0/dbutils/radardbutilities
 
 #  Installation directory for the QC report product
-QCRPTDIR=/usr/local/mgi/3.0/qcreports_db
-#QCRPTDIR=/home/sc/jsam/qcreports_db
+QCRPTDIR=/usr/local/mgi/live/qcreports_db
+#QCRPTDIR=/usr/local/mgi/3.0/qcreports_db
 
 export INSTALLDIR DBUTILSDIR RADARDBUTILSDIR QCRPTDIR
 
@@ -38,27 +39,39 @@ export INSTALLDIR DBUTILSDIR RADARDBUTILSDIR QCRPTDIR
 ###########################################################################
 
 # MGD Connection parameters 
-MGD_DBSERVER=DEV1_MGI
-MGD_DBURL=rohan.informatics.jax.org:4101
-MGD_DBNAME=mgd_jsamlec
-#MGD_DBNAME=mgd_jsamsc
+MGD_DBSERVER=PROD_MGI
+#MGD_DBSERVER=DEV1_MGI
+
+MGD_DBURL=shire.informatics.jax.org:4100
+#MGD_DBURL=rohan.informatics.jax.org:4101
+
+MGD_DBNAME=mgd
+#MGD_DBNAME=mgd_jsamlec
+
 MGD_DBUSER=mgd_dbo
 MGD_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
-MGD_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/mgd_jsamlec/mgddbschema
-#MGD_DBSCHEMADIR=/home/sc/jsam/mgddbschema
+
+MGD_DBSCHEMADIR=/usr/local/mgi/live/dbutils/mgd/mgddbschema
+#MGD_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/mgd_jsamlec/mgddbschema
 
 export MGD_DBSERVER MGD_DBURL MGD_DBNAME
 export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
 
 # RADAR Connection parameters 
-RADAR_DBSERVER=DEV1_MGI
-RADAR_DBURL=rohan.informatics.jax.org:4101
-RADAR_DBNAME=radar_jsam
-#RADAR_DBNAME=radar_release
+RADAR_DBSERVER=PROD_MGI
+#RADAR_DBSERVER=DEV1_MGI
+
+RADAR_DBURL=shire.informatics.jax.org:4100
+#RADAR_DBURL=rohan.informatics.jax.org:4101
+
+RADAR_DBNAME=radar
+#RADAR_DBNAME=radar_jsam
+
 RADAR_DBUSER=mgd_dbo
 RADAR_DBPASSWORDFILE=${DBUTILSDIR}/.mgd_dbo_password
-RADAR_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/radar_jsam/radardbschema
-#RADAR_DBSCHEMADIR=/home/sc/jsam/radardbschema
+
+RADAR_DBSCHEMADIR=/usr/local/mgi/live/dbutils/radar/radardbschema
+#RADAR_DBSCHEMADIR=/usr/local/mgi/3.0/dbutils/radar_jsam/radardbschema
 
 export RADAR_DBSERVER RADAR_DBURL RADAR_DBNAME RADAR_DBUSER 
 export RADAR_DBPASSWORDFILE RADAR_DBSCHEMADIR 
@@ -71,23 +84,26 @@ export RADAR_DBPASSWORDFILE RADAR_DBSCHEMADIR
 
 JAVA_HOME=/usr/j2se
 JAVA_RUN=${JAVA_HOME}/bin/java
+
 # allow 1.5 initial and max heap memory - note this is the max for which
 # the loader will run since child processes (e.g. isql exec of sql files)
 # need memory from the parent process (2G max given to a process by the op sys)
-JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
+JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
+#JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
 
-JAVA_LIB=/usr/local/mgi/3.0/lib/java1.4/dla.jar:/usr/local/mgi/3.0/lib/java1.4/core.jar:/usr/local/mgi/3.0/lib/java1.4/dbsmgd.jar:/usr/local/mgi/3.0/lib/java1.4/dbsrdr.jar
+JAVA_LIB=/usr/local/mgi/live/lib/java1.4/lib_java_dla/dla.jar:/usr/local/mgi/live/lib/java1.4/lib_java_core/core.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsmgd/dbsmgd.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsrdr/dbsrdr.jar
+
+#JAVA_LIB=/usr/local/mgi/3.0/lib/java1.4/lib_java_dla/dla.jar:/usr/local/mgi/3.0/lib/java1.4/lib_java_core/core.jar:/usr/local/mgi/3.0/lib/java1.4/lib_java_dbsmgd/dbsmgd.jar:/usr/local/mgi/3.0/lib/java1.4/lib_java_dbsrdr/dbsrdr.jar
 
 CLASSPATH=.:${INSTALLDIR}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
 
-#CLASSPATH=.:/home/sc/jsam/gbseqload/classes:/home/sc/jsam/lib_java_core/classes:/home/sc/jsam/lib_java_dbsmgd/classes:/home/sc/jsam/lib_java_dbsrdr/classes:/home/sc/jsam/lib_java_dla/classes:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar
+export JAVA_HOME JAVA_RUN JAVA_LIB JAVARUNTIMEOPTS CLASSPATH
 
 DLAFUNCTIONS=${RADARDBUTILSDIR}/bin/DLAfunctions.sh
 
 JOBSTART_CSH=${RADARDBUTILSDIR}/bin/startJobStream.csh
 JOBEND_CSH=${RADARDBUTILSDIR}/bin/endJobStream.csh
 
-export JAVA_HOME JAVA_RUN JAVA_LIB JAVARUNTIMEOPTS CLASSPATH 
 export DLAFUNCTIONS JOBSTART_CSH JOBEND_CSH
 
 ###########################################################################
@@ -99,25 +115,28 @@ export DLAFUNCTIONS JOBSTART_CSH JOBEND_CSH
 #  Java applications
 SEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqloader
 
-#  loader shell script
-SEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
-
 # seqloader QC report script
 SEQLOAD_QCRPT=${QCRPTDIR}/seqload/runQC.csh
 
 # molecular source processor QC report script
 MSP_QCRPT=${QCRPTDIR}/msp/runQC.csh
 
-export SEQLOAD_APP SEQLOAD_SH SEQLOAD_QCRPT MSP_QCRPT
+export SEQLOAD_APP SEQLOAD_QCRPT MSP_QCRPT
+
+#  loader shell script
+SEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
+
+export SEQLOAD_SH
 
 #  Full path to dir containing the data, report, log and archive directories
-FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
+FILEDIR=/data/loads/genbank/gbseqload
+#FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
 
 # Full path to dir containing GenBank release input files - 
 # Note we are using the seqdb_engine release build files
 # if LOAD_MODE=incremental the jobstream determines its own input directory
-DATADIR=/net/hobbiton/data/seqdbs/blast/gb.build
-#DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
+DATADIR=/data/seqdbs/blast/gb.build
+#DATADIR=/net/hobbiton/data/seqdbs/blast/gb.build
 
 # Full path the the logs, reports, and archive directories
 LOGDIR=${FILEDIR}/logs
@@ -126,65 +145,61 @@ ARCHIVEDIR=${FILEDIR}/archive
 
 export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 
-#  Complete path name of the GenBank input file(s)/
-#  frameworks expects the value 'STDIN' if jobstream script pipes input and
-#  jobstream expects the variable PIPED_INFILE to be defined
+#  Complete path name of the GenBank input file(s)
+#  Frameworks expects the value 'STDIN' if jobstream script pipes input to
+#  the application. Jobstream script expects PIPED_INFILE to be defined
+#  if INFILE_NAME=STDIN
 INFILE_NAME=STDIN
 
 # full path to the GenBank release input files
 # Note: we are using the seqdb_engine release build files
-# Note: if LOAD_MODE=incremental the jobstream determines its own input files
+# Note: if LOAD_MODE=incremental and RADAR_NONCUM_INPUT=true 
+# the jobstream determines its own input files
 PIPED_INFILES="${DATADIR}/gbrod_mouse.seq ${DATADIR}/gbsts_sts_mouse.seq ${DATADIR}/gbpat_mouse.seq ${DATADIR}/gbhtc_mouse_mrna.seq ${DATADIR}/gbhtg_mouse.seq ${DATADIR}/gbest_mouse.seq ${DATADIR}/gbgss_mouse.seq"
 
 # the seqdb_engine release input files are not compressed, the non-cums are
-CAT_METHOD="/usr/local/bin/gunzip -c"
-#CAT_METHOD=/usr/bin/cat
+#CAT_METHOD="/usr/local/bin/gunzip -c"
+CAT_METHOD=/usr/bin/cat
 
 export INFILE_NAME PIPED_INFILES CAT_METHOD 
 
-# GenBank sequence record regex end delimiter
-#INFILE_END_DELIMITER="^//"
-
-# GenBank sequence record regex start delimiter
-INFILE_BEGIN_DELIMITER="^LOCUS"
-
-# GenBank sequence record regex end delimiter not including sequence
-INFILE_END_DELIMITER="^ORIGIN"
-
-# Note: Using string delims causes first record to be skipped if
-# there is not a header
-# GenBank sequence record String start delimiter
-#INFILE_BEGIN_DELIMITER=\nLOCUS
-
-# GenBank sequence record String end delimiter not including sequence
-#INFILE_END_DELIMITER=\nORIGIN
-
 # true = regex matching for finding record delim is turned on
 INFILE_USE_REGEX=true
+
+# GenBank sequence record regex begin and end delimiter
+INFILE_BEGIN_DELIMITER="^LOCUS"
+INFILE_END_DELIMITER="^ORIGIN"
+
+# GenBank sequence record String begin and end delimiter
+# Note: Using string delims causes first record to be skipped if
+# there is not a header
+#INFILE_BEGIN_DELIMITER=\nLOCUS
+#INFILE_END_DELIMITER=\nORIGIN
+
+export INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER INFILE_USE_REGEX
 
 # buffersize in bytes used by nio.ByteBuffer
 # 21,000,000 = ~20 MB
 INFILE_BUFFERSIZE=21000000
 
 # incremental, incremental_initial, or delete_reload
-# incremental_initial doesn't use a MergeSplitProcessor
+# incremental_initial uses no event detections - add only
 SEQ_LOAD_MODE=incremental_initial
+
+# get non-cum input files from RADAR if 'true' and SEQ_LOAD_MODE=
+# incremental
+RADAR_NONCUM_INPUT=false
 
 # max size of a set of non-cums to process in bytes -
 # 50MB compressed seems to be good
 NONCUM_MAX=50000000
 
-# get non-cum input files from RADAR if 'true' (SEQ_LOAD_MODE must be
-# incremental)
-RADAR_NONCUM_INPUT=false
-
-export INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER INFILE_USE_REGEX
 export INFILE_BUFFERSIZE SEQ_LOAD_MODE NONCUM_MAX RADAR_NONCUM_INPUT
 
 # true if a virtual (computationally derived) sequence
 SEQ_VIRTUAL=false
 
-# this load's login value for DB table CreatedBy and ModifiedBy
+# this load's MGI_User login value for DB tables CreatedBy and ModifiedBy column
 JOBSTREAM=genbank_load
 
 # SEQ_Sequence Provider controlled vocab for GenBank 
@@ -256,8 +271,6 @@ export RADAR_BCP_OK_TO_OVERWRITE
 MGD_SCP_PATH=${MGD_BCP_PATH}
 MGD_SCP_PREVENT_EXECUTE=false
 MGD_SCP_OK_TO_OVERWRITE=false
-
-# Use default = script
 MGD_SCP_FILENAME=updates
 
 # Use defaults
@@ -279,8 +292,6 @@ export MGD_SCP_FILENAME
 SCP_PATH=${MGD_BCP_PATH}
 SCP_PREVENT_EXECUTE=false
 SCP_OK_TO_OVERWRITE=false
-
-# Use default = script
 SCP_FILENAME=mergeSplits
 
 # Use defaults
@@ -305,9 +316,9 @@ MAIL_LOG_CUR=""
 
 export MAIL_LOG_PROC MAIL_LOG_CUR
 
-###########################
-# repeat file processing
-##########################
+##################################################################
+# repeat file processing used when in incremental mode
+##################################################################
 
 # process repeat file if true
 PROCESS_REPEATS=false
@@ -326,4 +337,3 @@ REPEAT_TO_PROCESS=${SEQ_REPEAT_FILE}.to.process
 
 export PROCESS_REPEATS REPEAT_FILEDIR REPEAT_FILENAME
 export SEQ_REPEAT_FILE REPEAT_TO_PROCESS
-
