@@ -97,6 +97,7 @@ DLA_START=org.jax.mgi.shr.dla.DLAStart
 # this overrides the default BCP_Inline_Stream
 DLA_DB_PREFIX=MGD
 DLA_LOAD_STREAM=org.jax.mgi.shr.dbutils.dao.BCP_Script_Stream
+DLA_QC_STREAM=org.jax.mgi.shr.dbutils.dao.BCP_Script_Stream
 
 # seqloader QC report script
 APP_SEQ_QCRPT=${APP_QCRPTDIR}/seqload/runQC.csh
@@ -290,12 +291,14 @@ export SCP_FILENAME SCP_SUFFIX SCP_OUTFILENAME SCP_OUTSUFFIX
 #  MISCELLANEOUS SETTINGS
 #
 ###########################################################################
+#  The name of the load for the subject of an email notification
+MAIL_LOADNAME="GenBank Load"
 
 #  Recipient list for mailing the log files (comma-separated)
 MAIL_LOG_PROC="sc,lec"
 MAIL_LOG_CUR="sc"
 
-export MAIL_LOG_PROC MAIL_LOG_CUR
+export MAIL_LOADNAME MAIL_LOG_PROC MAIL_LOG_CUR
 
 ##################################################################
 # repeat file processing used when in incremental mode
