@@ -1,0 +1,71 @@
+The data files in this directory contain bogus data designed to test 
+the seqload for each type of event. 
+
+To test:
+1) Configure gbseqload, 
+set APP_INFILES=<full path to nctest.flat.gz> and APP_RADAR_INPUT=false
+
+2) Run gbseqload.sh
+
+3) Do 1 and 2 again changing APP_INFILES=<full path to nctest2.flat.gz> 
+
+################################################################################
+nctest.flat.gz contains 10 sequences, LOCUS lines as follows:
+LOCUS       ZZ000001               11919 bp    DNA     linear   ROD 25-DEC-2002
+LOCUS       ZZ000002               67977 bp    DNA     linear   ROD 14-APR-2000
+LOCUS       ZZ000003                2532 bp    mRNA    linear   ROD 27-NOV-1999
+LOCUS       ZZ000004               13852 bp    DNA     linear   ROD 25-DEC-2002
+LOCUS       ZZ000005                3682 bp    DNA     linear   ROD 08-FEB-2002
+LOCUS       ZZ000006                8393 bp    DNA     linear   ROD 28-MAR-2001
+LOCUS       ZZ000001               11919 bp    DNA     linear   ROD 25-DEC-2002
+LOCUS       ZZ000002               67977 bp    DNA     linear   ROD 14-APR-2004
+LOCUS       ZZ000004               13852 bp    DNA     linear   ROD 18-MAR-2004
+LOCUS       A06105                   731 bp    RNA     linear   PAT 21-MAY-1993
+
+This file should cause two invocations of the load from jobstream.
+Note that the dummy event depends on a sequence in MGI which has been
+a dummy since the initial release. It is a synthetic sequence which 
+cannot be determined to be a mouse, so it should continue to be reported
+as a dummy sequence in this test.
+
+The statistics in gbseqload.diag.log should look like the following
+
+Total Valid Sequences Processed = 10
+Total Valid Sequences Skipped because of errors - 0 See QC reports and curation log
+Total Repeat Sequences written to repeat file: 3
+Total sequences added: 10
+Total Update Events: 0
+Total Dummy Events: 1
+Total Non Events: 0
+Total Merge Events: 0
+Total Split Events: 0
+Load completed
+gbseqload completed successfully
+
+Total Valid Sequences Processed = 3
+Total Valid Sequences Skipped because of errors - 0 See QC reports and curation log
+Total Repeat Sequences written to repeat file: 0
+Total sequences added: 0
+Total Update Events: 2
+Total Dummy Events: 0
+Total Non Events: 1
+Total Merge Events: 1
+Total Split Events: 0
+
+################################################################################
+nctest2.flat.gz contains 3 sequences, LOCUS lines as follows:
+LOCUS       XX000001              158570 bp    DNA     linear   ROD 04-FEB-2003
+LOCUS       XX000002                3682 bp    DNA     linear   ROD 01-FEB-2005
+LOCUS       XX000003                8393 bp    DNA     linear   ROD 01-FEB-2005
+
+The statistics in gbseqload.diag.log should look like the following
+
+Total Valid Sequences Processed = 3
+Total Valid Sequences Skipped because of errors - 0 See QC reports and curation log
+Total Repeat Sequences written to repeat file: 0
+Total sequences added: 3
+Total Update Events: 0
+Total Dummy Events: 0
+Total Non Events: 0
+Total Merge Events: 1
+Total Split Events: 2
