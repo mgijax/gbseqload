@@ -54,7 +54,6 @@ public class GBSeqAttributeResolver extends SequenceAttributeResolver {
 
     public GBSeqAttributeResolver() throws CacheException, ConfigException,
         DBException, TranslationException {
-           //state = new SEQ_SequenceState();
        }
 
     /**
