@@ -163,9 +163,9 @@ SEQ_LOAD_MODE=incremental
 APP_RADAR_INPUT=true
 
 # max size of a set of radar files to process in bytes -
-# 500MB compressed seems to be good
+# 800MB compressed seems to be good
 # if set to 0, all files will be processed
-APP_RADAR_MAX=500000000
+APP_RADAR_MAX=800000000
 
 export INFILE_BUFFERSIZE SEQ_LOAD_MODE APP_RADAR_MAX APP_RADAR_INPUT
 
