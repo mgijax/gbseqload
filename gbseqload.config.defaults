@@ -148,23 +148,23 @@ INFILE_BUFFERSIZE=21000000
 
 # incremental, incremental_initial, or delete_reload
 # incremental_initial doesn't use a MergeSplitProcessor
-LOAD_MODE=incremental_initial
+SEQ_LOAD_MODE=incremental_initial
 
 # path to repeat file; file gbseqload writes sequences found more than
 # once in the input
-REPEAT_FILE=${FILEDIR}/data/repeats.out
+SEQ_REPEAT_FILE=${FILEDIR}/data/repeats.out
 
 export INFILE_NAME PIPED_INFILES INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER 
-export INFILE_USE_REGEX INFILE_BUFFERSIZE LOAD_MODE REPEAT_FILE
+export INFILE_USE_REGEX INFILE_BUFFERSIZE SEQ_LOAD_MODE SEQ_REPEAT_FILE
 
 # true if a virtual (computationally derived) sequence
-VIRTUAL=false
+SEQ_VIRTUAL=false
 
 # this load's login value for DB table CreatedBy and ModifiedBy
 JOBSTREAM=genbank_load
 
 # SEQ_Sequence Provider controlled vocab for GenBank 
-PROVIDER=GenBank
+SEQ_PROVIDER=GenBank
 
 # organisms to load
 LOAD_MOUSE=true
@@ -172,10 +172,10 @@ LOAD_RAT=false
 LOAD_HUMAN=false
 
 # logical db name for this data provider
-LOGICALDB="Sequence DB"
+SEQ_LOGICALDB="Sequence DB"
 
-export VIRTUAL JOBSTREAM PROVIDER 
-export LOAD_MOUSE LOAD_RAT LOAD_HUMAN MOUSE RAT HUMAN LOGICALDB
+export SEQ_VIRTUAL JOBSTREAM SEQ_PROVIDER 
+export LOAD_MOUSE LOAD_RAT LOAD_HUMAN MOUSE RAT HUMAN SEQ_LOGICALDB
 
 #  Complete path name of the log files
 LOG_PROC=${LOGDIR}/gbseqload.proc.log
