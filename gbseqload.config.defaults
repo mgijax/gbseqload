@@ -111,7 +111,7 @@ MSP_QCRPT=${QCRPTDIR}/msp/runQC.csh
 export GBSEQLOAD_APP GBSEQLOAD_SH SEQLOAD_QCRPT MSP_QCRPT
 
 #  Path name of the data, report, log and archive directories
-FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload-1-0-3
+FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
 DATADIR=/net/hobbiton/data/seqdbs/blast/gb.build
 #DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 
@@ -173,16 +173,17 @@ JOBSTREAM=genbank_load
 # SEQ_Sequence Provider controlled vocab for GenBank 
 SEQ_PROVIDER=GenBank
 
+# logical db name for this data provider
+SEQ_LOGICALDB="Sequence DB"
+
+export SEQ_VIRTUAL JOBSTREAM SEQ_PROVIDER SEQ_LOGICALDB
+
 # organisms to load
 LOAD_MOUSE=true
 LOAD_RAT=false
 LOAD_HUMAN=false
 
-# logical db name for this data provider
-SEQ_LOGICALDB="Sequence DB"
-
-export SEQ_VIRTUAL JOBSTREAM SEQ_PROVIDER 
-export LOAD_MOUSE LOAD_RAT LOAD_HUMAN MOUSE RAT HUMAN SEQ_LOGICALDB
+export LOAD_MOUSE LOAD_RAT LOAD_HUMAN
 
 #  Complete path name of the log files
 LOG_PROC=${LOGDIR}/gbseqload.proc.log
