@@ -179,7 +179,20 @@ ${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 
-${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xprof ${GBSEQLOAD_APP} > ${LOGDIR}/gbseqloadProfile.txt
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/rat_cavia_mus_human |
+
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/data 
+
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small2.seq 
+
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
+#cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq | 
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
+#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.tiny.seq | 
+#cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbpat_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbrod_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbsts_sts_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbgss_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbest_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbhtg_mouse.seq | 
+
+cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.seq | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xprof ${GBSEQLOAD_APP} > ${LOGDIR}/gbseqloadProfile.txt
+#-Xrunhprof:file=${LOGDIR}/gbseqloadProfile.txt,format=b ${GBSEQLOAD_APP}
 
 STAT=$?
 if [ ${STAT} -ne 0 ]
