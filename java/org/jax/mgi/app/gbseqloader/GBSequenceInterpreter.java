@@ -71,10 +71,14 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
         // call superclass to parse the record and get config
 	seqInput = (SequenceInput)super.interpret(rcd);
 
-        // use the division to set the sequence quality
+        // if this is a Third Party Annotation Sequence - set quality to medium
+        // If this is EST, HTG, or STS division - seq quality to medium
+        // otherwise set quality to high
+        String keyword = seqInput.getSeq().getMisc();
         String division = seqInput.getSeq().getDivision();
 	if (division.equals("EST") || division.equals("HTG") ||
-		division.equals("STS"))	{
+		division.equals("STS") ||
+                keyword.indexOf(SeqloaderConstants.TPA) != -1)	{
 	    seqInput.getSeq().setQuality(SeqloaderConstants.MED_QUAL);
         }
         else {
@@ -91,6 +95,9 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 }
 
 //  $Log$
+//  Revision 1.10  2004/04/27 15:46:17  sc
+//   moved creation of provider string from GBSeqloadAttributeResolver
+//
 //  Revision 1.9  2004/03/31 18:54:51  sc
 //  comment edit
 //
