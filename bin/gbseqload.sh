@@ -181,7 +181,8 @@ ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 
 #gunzip -c 
 #cat 
-cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xloggc:${LOGDIR}/gbseqloadGCStatus.txt -Xprof ${GBSEQLOAD_APP} | tee -a ${LOGDIR}/gbseqloadProfile.txt
+cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} ${GBSEQLOAD_APP} 
+#| tee -a ${LOGDIR}/gbseqloadProfile.txt
 
 #-Xrunhprof:file=${LOGDIR}/gbseqloadProfile.txt,format=b ${GBSEQLOAD_APP}
 
@@ -194,7 +195,7 @@ then
 fi
 
 # temporarily call this during testing to create a sequence status as deleted
-/home/lec/db/mgidbmigration/JSAM/deleteSequence.csh ${MGD_DBSCHEMADIR}
+/home/lec/db/mgidbmigration/JSAM/deletedSequence.csh ${MGD_DBSCHEMADIR}
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
