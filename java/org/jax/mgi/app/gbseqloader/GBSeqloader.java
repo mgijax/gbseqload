@@ -51,7 +51,7 @@ import org.jax.mgi.shr.ioutils.IOUException;
 import org.jax.mgi.shr.cache.KeyNotFoundException;
 import org.jax.mgi.dbs.SchemaConstants;
 import org.jax.mgi.dbs.mgd.MolecularSource.MSException;
-import org.jax.mgi.dbs.mgd.trans.TranslationException;
+import org.jax.mgi.dbs.mgd.lookup.TranslationException;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.cache.CacheException;
 import org.jax.mgi.shr.dbutils.DBException;
@@ -211,7 +211,7 @@ public class GBSeqloader {
          */
         // Create a SQLDataManager for the MGD database from the factory.
         mgdSqlMgr = SQLDataManagerFactory.getShared(SchemaConstants.MGD);
-        //mgdSqlMgr.setLogger(logger);
+        mgdSqlMgr.setLogger(logger);
 
         // Create a bcp manager that has been configured for the MGD database.
         mgdBcpMgr = new BCPManager(new BCPManagerCfg("MGD"));
@@ -408,16 +408,19 @@ public class GBSeqloader {
           // Too much of a dog to do every sequence
           //System.gc();
           sequenceStopWatch.stop();
-          logger.logdInfo(currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
+          logger.logdInfo("MEM&TIME: " + currentFreeMemory + "\t" + sequenceStopWatch.time(), false);
         }
         loadStopWatch.stop();
+        double totalLoadTime = loadStopWatch.time();
+
         // report total time for GBSeqloader.load()
-        logger.logdDebug("Total GBSeqloader.load() time in seconds: " + loadStopWatch.time() +
-                         "time in minutes: " + (loadStopWatch.time()/60));
+        logger.logdDebug("Total GBSeqloader.load() time in seconds: " + totalLoadTime +
+                         " time in minutes: " + (totalLoadTime/60));
 
         // report Sequence Lookup execution times
         seqCtr = passedCtr + errCtr;
         logger.logdDebug("Total Sequence Processed = " + seqCtr);
+        logger.logdDebug("Average Processing Time/Sequence = " + (totalLoadTime / seqCtr));
         if (seqCtr > 0) {
           logger.logdDebug("Average SequenceLookup time = " +
                            (seqProcessor.runningLookupTime / seqCtr));
