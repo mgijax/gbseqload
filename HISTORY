@@ -1,3 +1,13 @@
+DATE: 06/01/2004
+STAFF: sc
+CHANGES: 
+1) GBSeqloader -
+   added creation of seqidLookup here factored it out of IncremSeqProcessor 
+   and MergeSplitProcessor to avoid creating two copies. also added more debug 
+   logging to watch time to get a sequenceInput and time to process it
+2) gbseqload.config.defaults - changed begin and end delimiter to strings, 
+   set INFILE_USE_REGEX to false
+
 TAG: gbseqload-1-0-12
 DATE: 05/24/2004
 STAFF: sc
