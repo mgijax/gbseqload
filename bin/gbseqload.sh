@@ -155,7 +155,7 @@ startLog ${LOG_PROC} ${LOG_DIAG} ${LOG_CUR} ${LOG_VAL} | tee -a ${LOG}
 #
 getConfigEnv >> ${LOG_PROC}
 getConfigEnv -e >> ${LOG_DIAG}
-
+echo "Files from stdin: ${CAT_METHOD} ${PIPED_INFILES}" >> ${LOG_DIAG}
 #
 #  Start a new job stream and get the job stream key.
 #
@@ -179,9 +179,9 @@ ${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
 
-#gunzip -c 
-#cat 
-cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} ${GBSEQLOAD_APP} 
+echo "${CAT_METHOD} ${PIPED_INFILES}"
+
+${CAT_METHOD}  ${PIPED_INFILES}  | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} ${GBSEQLOAD_APP} tee -a  ${LOGDIR}/stdouterr
 #| tee -a ${LOGDIR}/gbseqloadProfile.txt
 
 #-Xrunhprof:file=${LOGDIR}/gbseqloadProfile.txt,format=b ${GBSEQLOAD_APP}
