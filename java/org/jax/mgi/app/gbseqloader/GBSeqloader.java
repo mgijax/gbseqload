@@ -385,16 +385,7 @@ public class GBSeqloader {
             errCtr++;
             continue;
           }
-          // log changed library, go to next sequence
-          catch (ChangedLibraryException e) {
-            String message = e.getMessage() + " Sequence: " +
-                 si.getPrimaryAcc().getAccID();
-             logger.logdInfo(message, true);
-             logger.logcInfo(message, true);
 
-             errCtr++;
-             continue;
-          }
           // if we can't resolve SEQ_Sequence attributes, go to the next
           // sequence
           catch (SequenceResolverException e) {
