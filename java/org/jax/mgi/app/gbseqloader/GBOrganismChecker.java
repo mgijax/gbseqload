@@ -70,7 +70,7 @@ public class GBOrganismChecker {
     private OrganismCheckerCfg config;
 
     // DEBUG
-    //private DLALogger logger;
+    private DLALogger logger;
 
     /**
     * Constructs an OrganismChecker for a given provider with a set of
@@ -101,7 +101,7 @@ public class GBOrganismChecker {
 
         // compile expression to find the classification section of a record
         organismPattern = Pattern.compile(EXPRESSION, Pattern.MULTILINE);
-        //logger = DLALogger.getInstance();
+        logger = DLALogger.getInstance();
     }
 
     /**
@@ -137,10 +137,10 @@ public class GBOrganismChecker {
             }
 
         }
-        /*if (isA == false) {
+        if (isA == false) {
             logger.logdDebug("Not a valid record: " + record, true);
         }
-        */
+
         return isA;
       }
 
@@ -397,6 +397,9 @@ public class GBOrganismChecker {
 }
 
 //  $Log$
+//  Revision 1.3  2004/02/11 15:47:16  sc
+//  changed reg expression, added DEBUG logging, removed creation of a string
+//
 //  Revision 1.2  2003/12/20 16:31:59  sc
 //  Changed from code review
 //
