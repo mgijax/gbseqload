@@ -19,7 +19,6 @@ import org.jax.mgi.shr.dla.input.genbank.GBFormatInterpreter;
 import org.jax.mgi.shr.dla.input.genbank.GBOrganismChecker;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
-import org.jax.mgi.shr.dla.log.DLALoggingException;
 import org.jax.mgi.shr.stringutil.StringLib;
 import org.jax.mgi.dbs.mgd.loads.SeqSrc.MSRawAttributes;
 
@@ -52,7 +51,7 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 
     private SequenceInput seqInput;
 
-    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException, DLALoggingException {
+    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException {
         super(oc);
     }
     /**
@@ -95,6 +94,9 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
 }
 
 //  $Log$
+//  Revision 1.11.2.1  2004/11/17 13:33:40  sc
+//  tr6047 lib_java_dla refactoring
+//
 //  Revision 1.11  2004/07/12 17:21:28  sc
 //  TR5925 set quality to medium if a tpa sequence
 //
