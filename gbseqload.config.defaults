@@ -88,8 +88,8 @@ JAVA_RUN=${JAVA_HOME}/bin/java
 # allow 1.5 initial and max heap memory - note this is the max for which
 # the loader will run since child processes (e.g. isql exec of sql files)
 # need memory from the parent process (2G max given to a process by the op sys)
-JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
-#JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
+#JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
+JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
 
 JAVA_LIB=/usr/local/mgi/live/lib/java1.4/lib_java_dla/dla.jar:/usr/local/mgi/live/lib/java1.4/lib_java_core/core.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsmgd/dbsmgd.jar:/usr/local/mgi/live/lib/java1.4/lib_java_dbsrdr/dbsrdr.jar
 
@@ -155,11 +155,13 @@ INFILE_NAME=STDIN
 # Note: we are using the seqdb_engine release build files
 # Note: if LOAD_MODE=incremental and RADAR_NONCUM_INPUT=true 
 # the jobstream determines its own input files
-PIPED_INFILES="${DATADIR}/gbrod_mouse.seq ${DATADIR}/gbsts_sts_mouse.seq ${DATADIR}/gbpat_mouse.seq ${DATADIR}/gbhtc_mouse_mrna.seq ${DATADIR}/gbhtg_mouse.seq ${DATADIR}/gbest_mouse.seq ${DATADIR}/gbgss_mouse.seq"
+#PIPED_INFILES="${DATADIR}/gbrod_mouse.seq ${DATADIR}/gbsts_sts_mouse.seq ${DATADIR}/gbpat_mouse.seq ${DATADIR}/gbhtc_mouse_mrna.seq ${DATADIR}/gbhtg_mouse.seq ${DATADIR}/gbest_mouse.seq ${DATADIR}/gbgss_mouse.seq"
+
+PIPED_INFILES=
 
 # the seqdb_engine release input files are not compressed, the non-cums are
-#CAT_METHOD="/usr/local/bin/gunzip -c"
-CAT_METHOD=/usr/bin/cat
+CAT_METHOD="/usr/local/bin/gunzip -c"
+#CAT_METHOD=/usr/bin/cat
 
 export INFILE_NAME PIPED_INFILES CAT_METHOD 
 
@@ -186,11 +188,11 @@ INFILE_BUFFERSIZE=21000000
 
 # incremental, incremental_initial, or delete_reload
 # incremental_initial uses no event detections - add only
-SEQ_LOAD_MODE=incremental_initial
+SEQ_LOAD_MODE=incremental
 
 # get non-cum input files from RADAR if 'true' and SEQ_LOAD_MODE=
 # incremental
-RADAR_NONCUM_INPUT=false
+RADAR_NONCUM_INPUT=true
 
 # max size of a set of non-cums to process in bytes -
 # 200MB compressed seems to be good
@@ -324,7 +326,7 @@ export MAIL_LOG_PROC MAIL_LOG_CUR
 ##################################################################
 
 # process repeat file if true
-PROCESS_REPEATS=false
+PROCESS_REPEATS=true
 
 # repeat file directory
 REPEAT_FILEDIR=${FILEDIR}/data
