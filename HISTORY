@@ -1,3 +1,11 @@
+TAG: gbseqload-3-1-0-4
+DATE: 01/21/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: Added /data directory containing
+         2 bogus test data files designed to cover all Events
+         README explaining how to use test files.
+
 TAG: gbseqload-3-1-0-3
 DATE: 01/21/2004
 STAFF: sc
