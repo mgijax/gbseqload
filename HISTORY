@@ -4,6 +4,8 @@ DATE: 02/19/2004
 STAFF: sc
 RELEASE:
 CHANGES: new tag for development build
+1) GBSequenceInterpreter.java - Changed sequence quality for 
+   STS division to 'Medium' per requirements
 
 DATE: 02/17/2004
 STAFF: sc
