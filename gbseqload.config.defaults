@@ -184,7 +184,7 @@ LOG_CUR=${LOGDIR}/gbseqload.cur.log
 LOG_VAL=${LOGDIR}/gbseqload.val.log
 
 # Send debug messages to the diagnostic log
-LOG_DEBUG=true
+LOG_DEBUG=false
 
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL LOG_DEBUG
 
