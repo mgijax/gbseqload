@@ -6,6 +6,8 @@ package org.jax.mgi.app.gbseqloader;
 /**
  * Debug stuff
  */
+import org.jax.mgi.shr.timing.Stopwatch;
+
 import java.util.*;
 
 
@@ -83,6 +85,7 @@ public class GBSeqloader {
      */
     // For memory usage
     Runtime runTime;
+    Stopwatch watch;
 
     // configurator for the sequence load
     private SequenceLoadCfg loadCfg;
@@ -186,7 +189,7 @@ public class GBSeqloader {
 
     private void initialize () throws MGIException {
         MGIException.setOkToStackTrace(true);
-
+        watch = new Stopwatch();
         runTime = Runtime.getRuntime();
         // get a configurator then get load mode
         loadCfg = new SequenceLoadCfg();
@@ -194,6 +197,7 @@ public class GBSeqloader {
 
         // get a dataload logger
         this.logger = DLALogger.getInstance();
+        //logger.setDebug(true);
         logger.logpInfo("Perform initialization", false);
         logger.logdInfo("Perform initialization",true);
 
@@ -212,6 +216,7 @@ public class GBSeqloader {
          */
         // Create a SQLDataManager for the MGD database from the factory.
         mgdSqlMgr = SQLDataManagerFactory.getShared(SchemaConstants.MGD);
+        //mgdSqlMgr.setLogger(logger);
 
         // Create a bcp manager that has been configured for the MGD database.
         mgdBcpMgr = new BCPManager(new BCPManagerCfg("MGD"));
@@ -319,17 +324,12 @@ public class GBSeqloader {
         // get the next record
         while (iterator.hasNext()) {
           try {
-              //DEBUG
-              seqCtr = passedCtr + errCtr;
-              if (seqCtr  > 0 && seqCtr % 100 == 0) {
-                currentFreeMemory = runTime.freeMemory();
-                runningFreeMemory = runningFreeMemory + currentFreeMemory;
-                logger.logdInfo("Processed " + seqCtr + " input records", false);
-                logger.logdInfo("Total Memory Available to the VM: " + runTime.totalMemory(), false);
-                logger.logdInfo("Free Memory Available: " + currentFreeMemory, false);
-              }
+
               // interpret next record
+              watch.reset();
+              watch.start();
               si = (SequenceInput) iterator.next();
+              System.out.println(si.getPrimaryAcc().getAccID());
           }
           catch (RecordFormatException e) {
               logger.logdErr(e.getMessage());
@@ -344,7 +344,20 @@ public class GBSeqloader {
           // or PubMed
 
           try {
+
             seqProcessor.processSequence(si);
+
+            //DEBUG
+            seqCtr = passedCtr + errCtr;
+            currentFreeMemory = runTime.freeMemory();
+            runningFreeMemory = runningFreeMemory + currentFreeMemory;
+            if (seqCtr  > 0 && seqCtr % 100 == 0) {
+                logger.logdInfo("Processed " + seqCtr + " input records", false);
+                //logger.logdInfo("Total Memory Available to the VM: " + runTime.totalMemory(), false);
+                //logger.logdInfo("Free Memory Available: " + currentFreeMemory, false);
+            }
+            watch.stop();
+            logger.logdInfo(currentFreeMemory + "\t" + watch.time(), false);
           }
           // if we can't resolve SEQ_Sequence attributes, go to the next
           // sequence in the input
