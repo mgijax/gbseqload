@@ -123,38 +123,38 @@ shutDown ()
     #
     #  End the log files.
     #
-#    stopLog ${LOG_PROC} ${LOG_DIAG} ${LOG_CUR} ${LOG_VAL} | tee -a ${LOG}
+    stopLog ${LOG_PROC} ${LOG_DIAG} ${LOG_CUR} ${LOG_VAL} | tee -a ${LOG}
 
     #
     #  Mail the logs to the support staff.
     #
-#    if [ "${MAIL_LOG_PROC}" != "" ]
-#    then
-#        mailLog ${MAIL_LOG_PROC} "GenBanK Load - Process Summary Log" ${LOG_PROC} | tee -a ${LOG}
-#    fi
+    if [ "${MAIL_LOG_PROC}" != "" ]
+    then
+        mailLog ${MAIL_LOG_PROC} "GenBanK Load - Process Summary Log" ${LOG_PROC} | tee -a ${LOG}
+    fi
 
-#    if [ "${MAIL_LOG_CUR}" != "" ]
-#    then
-#        mailLog ${MAIL_LOG_CUR} "GenBank Load - Curator Summary Log" ${LOG_CUR} | tee -a ${LOG}
-#    fi
+    if [ "${MAIL_LOG_CUR}" != "" ]
+    then
+        mailLog ${MAIL_LOG_CUR} "GenBank Load - Curator Summary Log" ${LOG_CUR} | tee -a ${LOG}
+    fi
 }
 
 
 #
 #  Archive the log and report files from the previous run.
 #
-#createArchive ${ARCHIVEDIR} ${LOGDIR} ${RPTDIR} | tee -a ${LOG}
+createArchive ${ARCHIVEDIR} ${LOGDIR} ${RPTDIR} | tee -a ${LOG}
 
 #
 #  Initialize the log files.
 #
-#startLog ${LOG_PROC} ${LOG_DIAG} ${LOG_CUR} ${LOG_VAL} | tee -a ${LOG}
+startLog ${LOG_PROC} ${LOG_DIAG} ${LOG_CUR} ${LOG_VAL} | tee -a ${LOG}
 
 #
 #  Write the configuration information to the log files.
 #
-#getConfigEnv >> ${LOG_PROC}
-#getConfigEnv -e >> ${LOG_DIAG}
+getConfigEnv >> ${LOG_PROC}
+getConfigEnv -e >> ${LOG_DIAG}
 
 #
 #  Start a new job stream and get the job stream key.
@@ -178,35 +178,6 @@ echo "\n`date`" >> ${LOG_PROC}
 ${MGD_DBSCHEMADIR}/partition/ACC_Accession_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Sequence_create.object
 ${MGD_DBSCHEMADIR}/partition/SEQ_Source_Assoc_create.object
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/rat_cavia_mus_human |
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/data 
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small2.seq 
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
-
-#cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq | 
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
-
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.tiny.seq | 
-
-#cat /net/hobbiton/data/seqdbs/blast/gb.build/gbhtc_mouse_mrna.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbpat_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbrod_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbsts_sts_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbgss_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbest_mouse.seq /net/hobbiton/data/seqdbs/blast/gb.build/gbhtg_mouse.seq | 
-
-# dataset for the 172000 sequence run
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/div*.seq 
-
-HOBBITONDIR=/net/hobbiton/data/seqdbs/blast/gb.build
-ROHANDIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
-
-# dataset for the 1mill sequence run
-#cat ${HOBBITONDIR}/gbrod_mouse.seq ${HOBBITONDIR}/gbsts_sts_mouse.seq ${HOBBITONDIR}/gbpat_mouse.seq ${HOBBITONDIR}/gbhtc_mouse_mrna.seq ${HOBBITONDIR}/gbhtg_mouse.seq ${ROHANDIR}/est_500000.seq ${ROHANDIR}/gss_220000.seq | 
-
-# Run with release intermediate files from seqdb_engine
-#cat ${HOBBITONDIR}/gbrod_mouse.seq ${HOBBITONDIR}/gbsts_sts_mouse.seq ${HOBBITONDIR}/gbpat_mouse.seq ${HOBBITONDIR}/gbhtc_mouse_mrna.seq ${HOBBITONDIR}/gbhtg_mouse.seq ${HOBBITONDIR}/gbest_mouse.seq ${HOBBITONDIR}/gbgss_mouse.seq | 
-#cat /net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader/gbmusmgianymarker.small.seq | 
 
 cat ${PIPED_INFILES} | ${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} -DCONFIG=${CONFIG_GBLOAD} -DJOBKEY=${JOBKEY} -Xloggc:${LOGDIR}/gbseqloadGCStatus.txt -Xprof ${GBSEQLOAD_APP} | tee -a ${LOGDIR}/gbseqloadProfile.txt
 
