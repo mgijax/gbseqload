@@ -36,7 +36,7 @@ import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
      *   <LI> A RefAssocRawAttributes object for each reference that has a
      *        PubMed and/or Medline id
      *   <LI> A MSRawAttributes
-     *   <LI> A set of String constants for parsing
+     *   <LI> See also superclass
      *   </UL>
      * @does
      *   <UL>
@@ -80,13 +80,15 @@ public class GBSequenceInterpreter extends GBFormatInterpreter {
         else {
             seqInput.getSeq().setQuality(SeqloaderConstants.HIGH_QUAL);
         }
-
         // return the SequenceInput object with quality set
         return seqInput;
     }
 }
 
 //  $Log$
+//  Revision 1.8  2004/02/26 21:10:47  sc
+//  much code was factored out of this class to lib_java_dla.GBFormatInterpreter.java so that it may be shared with RefSeq
+//
 //  Revision 1.6  2004/02/17 18:30:45  sc
 //  Create new StringBuffers rather than StringBuffer.setLength(0)
 //
