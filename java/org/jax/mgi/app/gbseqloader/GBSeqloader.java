@@ -274,12 +274,6 @@ public class GBSeqloader {
             // is a protected constructor
             mergeSplitScriptCfg = new ScriptWriterCfg();
             mergeSplitScriptWriter = new ScriptWriter(mergeSplitScriptCfg, mgdSqlMgr);
-            seqProcessor = new IncremSeqProcessor(mgdStream,
-                                                  rdrStream,
-                                                  qcReporter,
-                                                  seqResolver,
-                                                  mergeSplitProcessor,
-                                                  repeatSeqWriter);
 
             // sequence loader exception factory
             eFactory = new SeqloaderExceptionFactory();
@@ -293,6 +287,12 @@ public class GBSeqloader {
                         SeqloaderExceptionFactory.RepeatFileIOException, e);
                 throw e1;
             }
+            seqProcessor = new IncremSeqProcessor(mgdStream,
+                rdrStream,
+                qcReporter,
+                seqResolver,
+                mergeSplitProcessor,
+                repeatSeqWriter);
         }
     }
     /**
