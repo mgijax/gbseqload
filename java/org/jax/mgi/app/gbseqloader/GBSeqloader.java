@@ -6,7 +6,7 @@ package org.jax.mgi.app.gbseqloader;
 import org.jax.mgi.shr.timing.Stopwatch;
 import org.jax.mgi.shr.dla.seqloader.GBOrganismChecker;
 import org.jax.mgi.shr.dla.seqloader.SeqLoader;
-import org.jax.mgi.shr.dla.genbank.GBInputFile;
+import org.jax.mgi.shr.dla.genbank.GBInputFileNoSeq;
 import org.jax.mgi.shr.exception.MGIException;
 import java.util.Vector;
 import java.util.Iterator;
@@ -61,12 +61,12 @@ public class GBSeqloader extends SeqLoader {
         // set oc in the superclass for reporting purposes
         super.organismChecker = oc;
 
-        // Create an GBInputFile with a GBSequenceInterpreter
-        GBSequenceInterpreter interp = new GBSequenceInterpreter(oc);
-        GBInputFile inData = new GBInputFile();
+        // Create an GBInputFile
+        //GBSequenceInterpreter interp = new GBSequenceInterpreter(oc);
+        GBInputFileNoSeq inData = new GBInputFileNoSeq();
 
-        // get an iterator for the GBInputFile
-        super.iterator = inData.getIterator(interp);
+        // get an iterator for the GBInputFile with a GBSequenceInterpreter
+        super.iterator = inData.getIterator(new GBSequenceInterpreter(oc));
     }
 
     /**
