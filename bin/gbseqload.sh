@@ -33,6 +33,7 @@
 #      - Exceptions written to standard error
 #      - Configuration and initialization errors are written to a log file
 #        for the shell script
+#      - QC reports as defined by ${APP_SEQ_QCRPT} and ${APP_MSP_QCRPT}
 #
 #  Exit Codes:
 #
@@ -80,6 +81,7 @@ then
     echo "Cannot read configuration file: ${CONFIG_COMMON}" | tee -a ${LOG}
     exit 1
 fi
+
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}" | tee -a ${LOG}
@@ -87,12 +89,15 @@ then
 fi
 
 #
-#  Concatenate the configuration files together to produce one configuration
-#  file that can be run to set up the environment.
+# Source the common configuration files
 #
-CONFIG_RUNTIME=`pwd`/runtime.config
-cat ${CONFIG_COMMON} ${CONFIG_LOAD} > ${CONFIG_RUNTIME}
-. ${CONFIG_RUNTIME}
+. ${CONFIG_COMMON}
+
+#
+# Source the GenBank Load configuration files
+#
+. ${CONFIG_LOAD}
+
 
 echo "javaruntime:${JAVARUNTIMEOPTS}"
 echo "classpath:${CLASSPATH}"
@@ -100,9 +105,21 @@ echo "dbserver:${MGD_DBSERVER}"
 echo "database:${MGD_DBNAME}"
 
 #
-#  Include the DLA library functions.
+#  Source the DLA library functions.
 #
-. ${DLAFUNCTIONS}
+if [ "${DLAJOBSTREAMFUNC}" != "" ]
+then
+    if [ -r ${DLAJOBSTREAMFUNC} ]
+    then
+	. ${DLAJOBSTREAMFUNC}
+    else
+	echo "Cannot source DLA functions script: ${DLAJOBSTREAMFUNC}"
+	exit 1
+    fi
+else
+    echo "Environment variable DLAJOBSTREAMFUNC has not been defined."
+    exit 1
+fi
 
 #
 #  Function that performs cleanup tasks for the job stream prior to
@@ -111,6 +128,11 @@ echo "database:${MGD_DBNAME}"
 shutDown ()
 {
     #
+    # report location of logs
+    #
+    echo "\nSee logs at ${LOGDIR}\n" >> ${LOG_PROC}
+
+    #
     # call DLA library function
     #
     postload
@@ -118,17 +140,7 @@ shutDown ()
     #
     #  Mail the logs to the support staff.
     #
-    if [ "${MAIL_LOG_PROC}" != "" ]
-    then
-        mailLog ${MAIL_LOG_PROC} "GenBanK Load - Process Summary Log" \
-	    ${LOG_PROC} | tee -a ${LOG}
-    fi
-
-    if [ "${MAIL_LOG_CUR}" != "" ]
-    then
-        mailLog ${MAIL_LOG_CUR} "GenBank Load - Curator Summary Log" \
-	    ${LOG_CUR} | tee -a ${LOG}
-    fi
+    mailLog "GenBank Load" | tee -a ${LOG}
 }
 
 #
@@ -141,14 +153,15 @@ run ()
     # log time and input files to process
     #
     echo "\n`date`" >> ${LOG_PROC}
-    echo "Files from stdin: ${CAT_METHOD} ${PIPED_INFILES}" | tee -a ${LOG_DIAG} 
+    echo "Files read from stdin: ${APP_CAT_METHOD} ${APP_INFILES}" | \
+	tee -a ${LOG_DIAG} ${LOG_PROC}
     #
     # run gbseqload
     #
-    ${CAT_METHOD}  ${PIPED_INFILES}  | \
-	${JAVA_RUN} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} \
-	-DCONFIG=${CONFIG_LOAD} -DJOBKEY=${JOBKEY} ${SEQLOAD_APP} | \
-	tee -a  ${LOGDIR}/stdouterr
+    ${APP_CAT_METHOD}  ${APP_INFILES}  | \
+	${JAVA} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} \
+	-DCONFIG=${CONFIG_COMMON},${CONFIG_LOAD} \
+	-DJOBKEY=${JOBKEY} ${DLA_START}
 
     STAT=$?
     if [ ${STAT} -ne 0 ]
@@ -172,16 +185,16 @@ preload
 
 # if we are processing the non-cums (incremental mode)
 # get a set of files, 1 file or set < configured value in MB (compressed)
-echo "checking RADAR_NONCUM_INPUT: ${RADAR_NONCUM_INPUT}"
-if [ ${RADAR_NONCUM_INPUT} = true -a ${SEQ_LOAD_MODE} = incremental ]
+echo "checking APP_RADAR_INPUT: ${APP_RADAR_INPUT}"
+if [ ${APP_RADAR_INPUT} = true -a ${SEQ_LOAD_MODE} = incremental ]
 then
     echo 'Getting files to Process' | tee -a ${LOG_DIAG}
     # set the input files to empty string
-    PIPED_INFILES=""
+    APP_INFILES=""
 
     # get input files 
-    PIPED_INFILES=`${RADARDBUTILSDIR}/bin/getFilesToProcess.csh \
-	${RADAR_DBSCHEMADIR} ${JOBSTREAM} ${SEQ_PROVIDER} ${NONCUM_MAX}`
+    APP_INFILES=`${RADARDBUTILSDIR}/bin/getFilesToProcess.csh \
+	${RADAR_DBSCHEMADIR} ${JOBSTREAM} ${SEQ_PROVIDER} ${APP_RADAR_MAX}`
     STAT=$?
     if [ ${STAT} -ne 0 ]
     then
@@ -191,24 +204,24 @@ then
 	exit 1
     fi
     # if no input files report and shutdown gracefully
-    if [ "${PIPED_INFILES}" = "" ]
+    if [ "${APP_INFILES}" = "" ]
     then
-	echo "No files to process" | tee -a ${LOG_DIAG}
+	echo "No files to process" | tee -a ${LOG_DIAG} ${LOG_PROC}
 	shutDown
 	exit 0
     fi
-    # save to new var, if we are processing repeats PIPED_INFILES
+    # save to new var, if we are processing repeats APP_INFILES
     # is reassigned and we won't be able to log processed files properly
-    FILES_PROCESSED=${PIPED_INFILES}
+    FILES_PROCESSED=${APP_INFILES}
     echo 'Done getting files to Process' | tee -a ${LOG_DIAG}
 fi
-# if we get here then PIPED_INFILES not set in configuration this is an error
-echo "PIPED_INFILES=${PIPED_INFILES}"
-if [ "${PIPED_INFILES}" = "" ]
+# if we get here then APP_INFILES not set in configuration this is an error
+#echo "APP_INFILES=${APP_INFILES}"
+if [ "${APP_INFILES}" = "" ]
 then
     # set STAT for endJobStream.py called from postload in shutDown
     STAT=1
-    echo "RADAR_NONCUM_INPUT=${RADAR_NONCUM_INPUT}. SEQ_LOAD_MODE=${SEQ_LOAD_MODE}. Check that PIPED_INFILES has been configured. Return status: ${STAT}" | tee -a ${LOG_PROC}
+    echo "APP_RADAR_INPUT=${APP_RADAR_INPUT}. SEQ_LOAD_MODE=${SEQ_LOAD_MODE}. Check that APP_INFILES has been configured. Return status: ${STAT}" | tee -a ${LOG_PROC}
     shutDown
     exit 1
 fi
@@ -221,33 +234,39 @@ run
 #
 # run any repeat files if configured to do so
 #
-if [ ${PROCESS_REPEATS} = true ]
+ctr=1
+if [ ${APP_PROCESS_REPEATS} = true ]
+echo "APP_PROCESS_REPEATS=${APP_PROCESS_REPEATS}"
 then
     while [ -s ${SEQ_REPEAT_FILE} ]
     # while repeat file exists and is not length 0
     do
+	echo "we have a repeat file, rename it for processing"
 	# rename the repeat file
-	mv ${SEQ_REPEAT_FILE} ${REPEAT_TO_PROCESS}
+	mv ${SEQ_REPEAT_FILE} ${APP_REPEAT_TO_PROCESS}
 
 	# set the cat method
-	CAT_METHOD=/usr/bin/cat
+	APP_CAT_METHOD=/usr/bin/cat
 
 	# set the input file name
-	PIPED_INFILES=${REPEAT_TO_PROCESS}
-
+	APP_INFILES=${APP_REPEAT_TO_PROCESS}
+	echo "running repeat file"
 	# run the load
 	run
 
 	# remove the repeat file we just ran
-	echo "Removing ${REPEAT_TO_PROCESS}"
-	rm ${REPEAT_TO_PROCESS}
+	#echo "Removing ${APP_REPEAT_TO_PROCESS}"
+	#rm ${APP_REPEAT_TO_PROCESS}
+	echo "saving repeat file ${APP_REPEAT_TO_PROCESS}.${ctr}"
+	mv ${APP_REPEAT_TO_PROCESS} ${APP_REPEAT_TO_PROCESS}.${ctr}
+        ctr=`expr ${ctr} + 1`
     done
 
 fi
 
 # if we are processing the non-cums (incremental mode)
 # log the non-cums we processed
-if [ ${RADAR_NONCUM_INPUT} = true -a ${SEQ_LOAD_MODE} = incremental ]
+if [ ${APP_RADAR_INPUT} = true -a ${SEQ_LOAD_MODE} = incremental ]
 then
     echo "Logging processed files ${FILES_PROCESSED}" | tee -a ${LOG_DIAG}
     for file in ${FILES_PROCESSED}
@@ -270,7 +289,7 @@ fi
 #
 # run msp qc reports
 #
-${MSP_QCRPT} ${RADAR_DBSCHEMADIR} ${MGD_DBNAME} ${JOBKEY} ${RPTDIR}
+${APP_MSP_QCRPT} ${RADAR_DBSCHEMADIR} ${MGD_DBNAME} ${JOBKEY} ${RPTDIR}
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
@@ -282,7 +301,7 @@ fi
 #
 # run seqload qc reports
 #
-${SEQLOAD_QCRPT} ${RADAR_DBSCHEMADIR} ${MGD_DBNAME} ${JOBKEY} ${RPTDIR}
+${APP_SEQ_QCRPT} ${RADAR_DBSCHEMADIR} ${MGD_DBNAME} ${JOBKEY} ${RPTDIR}
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
