@@ -78,7 +78,7 @@ import java.lang.Runtime;
  * @company The Jackson Laboratory
  * @author sc
  * @version 1.0
- */
+cd ../ */
 
 public class GBSeqloader {
 
@@ -212,7 +212,7 @@ public class GBSeqloader {
          */
         // Create a SQLDataManager for the MGD database from the factory.
         mgdSqlMgr = SQLDataManagerFactory.getShared(SchemaConstants.MGD);
-        mgdSqlMgr.setLogger(logger);
+        //mgdSqlMgr.setLogger(logger);
 
         // Create a bcp manager that has been configured for the MGD database.
         mgdBcpMgr = new BCPManager(new BCPManagerCfg("MGD"));
@@ -435,6 +435,12 @@ public class GBSeqloader {
           logger.logdDebug("Least MSProcessor time = " + seqProcessor.lowMSPTime);
           // report free memory average
           logger.logdDebug("Average Free Memory = " + runningFreeMemory / seqCtr);
+          logger.logdDebug("Organism Decider Counts:");
+
+          Vector deciderCts = organismChecker.getDeciderCounts();
+          for (Iterator i = deciderCts.iterator(); i.hasNext();) {
+              logger.logdDebug((String)i.next());
+          }
         }
 
 
