@@ -30,10 +30,13 @@ as a dummy sequence in this test.
 
 The statistics in gbseqload.diag.log should look like the following
 
-Total Valid Sequences Processed = 10
-Total Valid Sequences Skipped because of errors - 0 See QC reports and curation log
+The statistics in gbseqload.diag.log should look like the following
+
+Total Valid Sequences Processed = 7
+Total Valid Sequences Skipped because of errors - 0 See QC reports and curation
+log
 Total Repeat Sequences written to repeat file: 3
-Total sequences added: 10
+Total sequences added: 7
 Total Update Events: 0
 Total Dummy Events: 1
 Total Non Events: 0
@@ -43,7 +46,8 @@ Load completed
 gbseqload completed successfully
 
 Total Valid Sequences Processed = 3
-Total Valid Sequences Skipped because of errors - 0 See QC reports and curation log
+Total Valid Sequences Skipped because of errors - 0 See QC reports and curation
+log
 Total Repeat Sequences written to repeat file: 0
 Total sequences added: 0
 Total Update Events: 2
