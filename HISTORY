@@ -1,6 +1,20 @@
 DATE: 04/30/2004
 STAFF: sc
-RELEASE:dev
+CHANGES:
+1) gbseqload.config.defaults - changed GBSEQLOAD_SH to SEQLOAD_SH
+   added NONCUM_MAX and RADAR_NONCUM_INPUT
+2) gbseqload.sh 
+     - changed GBSEQLOAD_SH to SEQLOAD_SH. changed CONFIG_GBLOAD
+       to CONFIG_LOAD. 
+     - added call to radardbutilities getfilesToProcess.csh and 
+       logProcessedFiles.csh. Gets input files from RADAR
+       when in incremental LOAD_MODE and then logs those files in RADAR 
+     - Added test for RADAR_NONCUM_INPUT in order to override
+       getting input files from RADAR when in incremental mode (mostly for
+       testing, but may be needed to process an adhoc file)
+ 
+DATE: 04/30/2004
+STAFF: sc
 CHANGES: index.html - added reports and logs
 
 TAG: gbseqload-1-0-9
