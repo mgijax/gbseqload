@@ -365,9 +365,9 @@ public class GBSeqloader {
             seqCtr = passedCtr + errCtr;
             currentFreeMemory = runTime.freeMemory();
             runningFreeMemory = runningFreeMemory + currentFreeMemory;
-            if (seqCtr  > 0 && seqCtr % 100 == 0) {
+            if (seqCtr  > 0 && seqCtr % 1000 == 0) {
                 logger.logdInfo("Processed " + seqCtr + " input records", false);
-                System.gc();
+                //System.gc();
                 //logger.logdInfo("Total Memory Available to the VM: " + runTime.totalMemory(), false);
                 //logger.logdInfo("Free Memory Available: " + currentFreeMemory, false);
             }
