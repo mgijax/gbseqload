@@ -3,7 +3,7 @@
 
 package org.jax.mgi.app.gbseqloader;
 
-import org.jax.mgi.shr.dla.seqloader.GBSeqAttributeResolver;
+import org.jax.mgi.shr.dla.seqloader.SequenceAttributeResolver;
 import org.jax.mgi.shr.dla.seqloader.SequenceRawAttributes;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.dbutils.DBException;
@@ -30,7 +30,7 @@ import org.jax.mgi.dbs.mgd.lookup.TranslationException;
  * @version 1.0
  */
 
-public class GBSeqloadAttributeResolver extends GBSeqAttributeResolver {
+public class GBSeqloadAttributeResolver extends SequenceAttributeResolver {
 
     SEQ_SequenceState state;
 
