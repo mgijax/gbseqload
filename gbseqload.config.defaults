@@ -14,12 +14,11 @@
 ###########################################################################
 
 #  Installation directory for the GenBank sequence load
-#INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
-INSTALLDIR=/home/sc/jsam/gbseqload
+INSTALLDIR=/usr/local/mgi/3.0/dataload/gbseqload
+#INSTALLDIR=/home/sc/jsam/gbseqload
 
 #  Installation directory for the DB utilities product
 DBUTILSDIR=/home/sc/jsam/mgidbutilities
-#DBUTILSDIR=\\Shire\sc\jsam\mgidbutilities
 
 #  Installation directory for the QC report product
 #QCRPTDIR=/usr/local/mgi/qcreports_db
@@ -51,7 +50,7 @@ export MGD_DBUSER MGD_DBPASSWORDFILE MGD_DBSCHEMADIR
 
 JAVA_HOME=/usr/j2se
 JAVA_RUN=${JAVA_HOME}/bin/java
-JAVARUNTIMEOPTS=-Xmx2000m      # allow 500m memory limit
+JAVARUNTIMEOPTS=-Xmx2000m      # allow 2G memory limit
 
 #CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:/opt/sybase/12.5/jConnect-5_5/classes/jconn2.jar:/usr/local/mgi/3.0/lib/java1.4/class
 
@@ -74,7 +73,7 @@ export JOBSTART_CSH JOBEND_CSH
 #  Java applications
 GBSEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqLoader
 
-#  Clone loader shell script
+#  loader shell script
 GBSEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
 
 #  seqloader QC report shell script
@@ -86,18 +85,10 @@ export GBSEQLOAD_APP GBSEQLOAD_SH GBSEQLOAD_QCRPT
 #  Path name of the data, report, log and archive directories
 FILEDIR=/net/rohan/data/loads/genbank/gbseqload
 
-# note pc can't see this rohan dir yet
-#FILEDIR=\\Rohan\data\loads\genbank\gbseqload
-#FILEDIR=\\Shire\sc
-
 DATADIR=/net/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
-#DATADIR=\\Rohan\data\downloads\ftp.ncbi.nih.gov\genbank
 LOGDIR=${FILEDIR}/logs
-#LOGDIR=${FILEDIR}\logs
 RPTDIR=${FILEDIR}/reports
-#RPTDIR=${FILEDIR}\reports
 ARCHIVEDIR=${FILEDIR}/archive
-#ARCHIVEDIR=${FILEDIR}\archive
 
 export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 
@@ -140,13 +131,9 @@ export VIRTUAL JOBSTREAM PROVIDER JNUMBER LOGICALDB
 
 #  Complete path name of the log files
 LOG_PROC=${LOGDIR}/gbseqloader.proc.log
-#LOG_PROC=${LOGDIR}\gbseqloader.proc.log
 LOG_DIAG=${LOGDIR}/gbseqloader.diag.log
-#LOG_DIAG=${LOGDIR}\gbseqloader.diag.log
 LOG_CUR=${LOGDIR}/gbseqloader.cur.log
-#LOG_CUR=${LOGDIR}\gbseqloader.cur.log
 LOG_VAL=${LOGDIR}/gbseqloader.val.log
-#LOG_VAL=${LOGDIR}\gbseqloader.val.log
 
 # Send debug messages to the diagnostic log
 LOG_DEBUG=true
