@@ -115,7 +115,7 @@ INFILE_NAME=${DATADIR}/gbmusmgianymarker.seq
 
 # GenBank sequence record delimiter
 #INFILE_END_DELIMITER="^//"
-INFILE_END_DELIMITER=ORIGIN\n
+INFILE_END_DELIMITER=ORIGIN
 
 # GenBank sequence record start delimiter
 INFILE_BEGIN_DELIMITER=LOCUS
