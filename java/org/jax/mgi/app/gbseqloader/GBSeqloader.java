@@ -8,12 +8,9 @@ package org.jax.mgi.app.gbseqloader;
  */
 import org.jax.mgi.shr.timing.Stopwatch;
 
-import java.util.*;
-
-
 //import org.jax.mgi.shr.config.InputDataCfg;
 import org.jax.mgi.shr.config.BCPManagerCfg;
-import org.jax.mgi.shr.ioutils.RecordDataInterpreter;
+//import org.jax.mgi.shr.ioutils.RecordDataInterpreter;
 import org.jax.mgi.shr.config.SequenceLoadCfg;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderConstants;
 import org.jax.mgi.shr.dla.seqloader.MergeSplitProcessor;
@@ -28,10 +25,9 @@ import org.jax.mgi.shr.dla.seqloader.SeqloaderException;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderExceptionFactory;
 import org.jax.mgi.shr.dla.seqloader.SequenceResolverException;
 import org.jax.mgi.shr.dla.seqloader.RepeatSequenceException;
-import org.jax.mgi.shr.dla.seqloader.RepeatSequenceException;
 import org.jax.mgi.shr.dla.seqloader.ChangedOrganismException;
 import org.jax.mgi.shr.dla.seqloader.ChangedLibraryException;
-import org.jax.mgi.shr.dla.seqloader.ProcessSequenceInput;
+//import org.jax.mgi.shr.dla.seqloader.ProcessSequenceInput;
 import org.jax.mgi.shr.dla.DLALogger;
 import org.jax.mgi.shr.dla.DLAException;
 import org.jax.mgi.shr.dla.DLAExceptionHandler;
@@ -43,7 +39,7 @@ import org.jax.mgi.shr.dbutils.SQLDataManagerFactory;
 import org.jax.mgi.shr.dbutils.bcp.BCPManager;
 import org.jax.mgi.shr.dbutils.dao.SQLStream;
 import org.jax.mgi.shr.dbutils.dao.BCP_Inline_Stream;
-import org.jax.mgi.shr.dbutils.dao.BCP_Batch_Stream;
+//import org.jax.mgi.shr.dbutils.dao.BCP_Batch_Stream;
 import org.jax.mgi.shr.dbutils.dao.BCP_Script_Stream;
 import org.jax.mgi.shr.dbutils.ScriptWriter;
 import org.jax.mgi.shr.config.ScriptWriterCfg;
@@ -62,7 +58,9 @@ import org.jax.mgi.shr.dbutils.DBException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.Runtime;
+import java.util.Vector;
+import java.util.Iterator;
+
 
 /**
  * @is
@@ -220,6 +218,7 @@ public class GBSeqloader {
         interpretor = new GBSequenceInterpreter(organismChecker);
         iterator = inData.getIterator(interpretor);
 
+
         /**
          * Set up MGD stream
          */
@@ -260,7 +259,7 @@ public class GBSeqloader {
         qcReporter = new SeqQCReporter(rdrStream);
 
         // create a seq processor for the initial load
-        seqResolver = new GBSeqloadAttributeResolver();
+        seqResolver = new SequenceAttributeResolver();
         if (loadMode.equals(SeqloaderConstants.INCREM_INITIAL_LOAD_MODE)) {
             seqProcessor = new SeqProcessor(mgdStream,
                                             rdrStream,
@@ -366,46 +365,64 @@ public class GBSeqloader {
           try {
              seqProcessor.processInput(si);
           }
-          // if we've found a repeated sequence in the input, go to the next
-          // sequence in the input
+          // log repeated sequence, go to the next sequence
           catch (RepeatSequenceException e) {
-              logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
-              errCtr++;
-              continue;
+            String message = e.getMessage() + " Sequence: " +
+                 si.getPrimaryAcc().getAccID();
+             logger.logdInfo(message, true);
+             logger.logcInfo(message, true);
+
+             errCtr++;
+             continue;
           }
+          // log changed organism, go to next sequence
           catch (ChangedOrganismException e) {
-            logger.logdInfo(e.getMessage() + " Sequence: " +
-                            si.getPrimaryAcc().getAccID(), true);
+            String message = e.getMessage() + " Sequence: " +
+                si.getPrimaryAcc().getAccID();
+            logger.logdInfo(message, true);
+            logger.logcInfo(message, true);
+
             errCtr++;
             continue;
           }
-
+          // log changed library, go to next sequence
           catch (ChangedLibraryException e) {
-              logger.logdInfo(e.getMessage() + " Sequence: " + si.getPrimaryAcc().getAccID(), true);
-              errCtr++;
-              continue;
+            String message = e.getMessage() + " Sequence: " +
+                 si.getPrimaryAcc().getAccID();
+             logger.logdInfo(message, true);
+             logger.logcInfo(message, true);
+
+             errCtr++;
+             continue;
           }
           // if we can't resolve SEQ_Sequence attributes, go to the next
-          // sequence in the input
+          // sequence
           catch (SequenceResolverException e) {
-            logger.logdErr(e.getMessage() + " Sequence: " +
-                           si.getPrimaryAcc().getAccID());
-            errCtr++;
-            continue;
+            String message = e.getMessage() + " Sequence: " +
+                 si.getPrimaryAcc().getAccID();
+             logger.logdInfo(message, true);
+             logger.logcInfo(message, true);
+
+             errCtr++;
+             continue;
           }
           // if we can't resolve the source for a sequence, go to the next
-          // sequence in the input
+          // sequence
           catch (MSException e) {
-            logger.logdErr(e.getMessage() + " Sequence: " +
-                           si.getPrimaryAcc().getAccID());
-            errCtr++;
-            continue;
+            String message = e.getMessage() + " Sequence: " +
+                 si.getPrimaryAcc().getAccID();
+             logger.logdInfo(message, true);
+             logger.logcInfo(message, true);
+
+             errCtr++;
+             continue;
           }
 
             //DEBUG
+            //currentFreeMemory = runTime.freeMemory();
+            //runningFreeMemory = runningFreeMemory + currentFreeMemory;
+
             seqCtr = passedCtr + errCtr;
-            currentFreeMemory = runTime.freeMemory();
-            runningFreeMemory = runningFreeMemory + currentFreeMemory;
             if (seqCtr  > 0 && seqCtr % 1000 == 0) {
                 logger.logdInfo("Processed " + seqCtr + " input records", false);
                 //System.gc();
