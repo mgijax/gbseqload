@@ -273,7 +273,8 @@ public class GBSeqloader {
             // wouldn't need to pass a Configurator, but the ScriptWriter(sqlMgr)
             // is a protected constructor
             mergeSplitScriptCfg = new ScriptWriterCfg();
-            mergeSplitScriptWriter = new ScriptWriter(mergeSplitScriptCfg, mgdSqlMgr);
+            mergeSplitScriptWriter = new ScriptWriter(mergeSplitScriptCfg,
+                mgdSqlMgr);
 
             // sequence loader exception factory
             eFactory = new SeqloaderExceptionFactory();
@@ -450,23 +451,33 @@ public class GBSeqloader {
         logger.logdInfo("Closing rdrStream", false);
         rdrStream.close();
 
-        // report Sequence processing statistics
+        /**
+        * report Sequence processing statistics
+        */
+
         logger.logdInfo("Total GBSeqloader.load() time in minutes: " +
+                        (totalProcessTime/60), true);
+        logger.logpInfo("Total GBSeqloader.load() time in minutes: " +
                         (totalProcessTime/60), true);
 
         seqCtr = passedCtr + errCtr;
-        logger.logdInfo("Total Sequence Processed = " + seqCtr + " (" + errCtr +
+        logger.logdInfo("Total Sequences Processed = " + seqCtr + " (" + errCtr +
                         " skipped because of errors or repeated sequences)", false);
-        logger.logdInfo("Average Processing Time/Sequence = " +
+        logger.logpInfo("Total Sequence Processed = " + seqCtr + " (" + errCtr +
+                        " skipped because of errors or repeated sequences)", false);
+
+        logger.logdDebug("Average Processing Time/Sequence = " +
                         (totalProcessTime / seqCtr), false);
+
         if (seqCtr > 0) {
-          logger.logdInfo("Average SequenceLookup time = " +
+          logger.logdDebug("Average SequenceLookup time = " +
                           (seqProcessor.runningLookupTime / seqCtr), false);
 
           logger.logdDebug("Greatest SequenceLookup time = " +
                            seqProcessor.highLookupTime, false);
           logger.logdDebug("Least SequenceLookup time = " +
                            seqProcessor.lowLookupTime, false);
+
           // report MSProcessor execution times
           logger.logdDebug("Average MSProcessor time = " +
                            (seqProcessor.runningMSPTime / seqCtr), false);
@@ -476,10 +487,14 @@ public class GBSeqloader {
           // report free memory average
           logger.logdDebug("Average Free Memory = " + (runningFreeMemory / seqCtr), false);
         }
-        logger.logdInfo("Organism Decider Counts:", true);
+        logger.logdInfo("Organism Decider Counts:", false);
+        logger.logpInfo("Organism Decider Counts:", false);
+
         Vector deciderCts = organismChecker.getDeciderCounts();
         for (Iterator i = deciderCts.iterator(); i.hasNext(); ) {
-            logger.logdInfo( (String) i.next(), false);
+            String line = (String) i.next();
+            logger.logdInfo( line, false);
+            logger.logpInfo( line, false);
         }
 
         // report Event counts for sequences processed - Note that all
@@ -492,7 +507,9 @@ public class GBSeqloader {
 
         Vector eventReports = seqProcessor.getProcessedReport();
         for(Iterator i = eventReports.iterator(); i.hasNext();) {
-              logger.logdInfo((String)i.next(), false);
+              String line = (String)i.next();
+              logger.logpInfo(line, false);
+              logger.logdInfo(line, false);
         }
     }
 }
