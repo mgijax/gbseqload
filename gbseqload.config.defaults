@@ -87,8 +87,8 @@ DLAFUNCTIONS=${RADARDBUTILSDIR}/bin/DLAfunctions.sh
 JOBSTART_CSH=${RADARDBUTILSDIR}/bin/startJobStream.csh
 JOBEND_CSH=${RADARDBUTILSDIR}/bin/endJobStream.csh
 
-export JAVA_HOME JAVA_RUN JAVARUNTIMEOPTS CLASSPATH DLAFUNCTIONS
-export JOBSTART_CSH JOBEND_CSH
+export JAVA_HOME JAVA_RUN JAVA_LIB JAVARUNTIMEOPTS CLASSPATH 
+export DLAFUNCTIONS JOBSTART_CSH JOBEND_CSH
 
 ###########################################################################
 #
@@ -97,10 +97,10 @@ export JOBSTART_CSH JOBEND_CSH
 ###########################################################################
 
 #  Java applications
-GBSEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqloader
+SEQLOAD_APP=org.jax.mgi.app.gbseqloader.GBSeqloader
 
 #  loader shell script
-GBSEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
+SEQLOAD_SH=${INSTALLDIR}/bin/gbseqload.sh
 
 # seqloader QC report script
 SEQLOAD_QCRPT=${QCRPTDIR}/seqload/runQC.csh
@@ -108,13 +108,18 @@ SEQLOAD_QCRPT=${QCRPTDIR}/seqload/runQC.csh
 # molecular source processor QC report script
 MSP_QCRPT=${QCRPTDIR}/msp/runQC.csh
 
-export GBSEQLOAD_APP GBSEQLOAD_SH SEQLOAD_QCRPT MSP_QCRPT
+export SEQLOAD_APP SEQLOAD_SH SEQLOAD_QCRPT MSP_QCRPT
 
-#  Path name of the data, report, log and archive directories
+#  Full path to dir containing the data, report, log and archive directories
 FILEDIR=/net/mtdoom/vol/rohan/data/loads/genbank/gbseqload
+
+# Full path to dir containing GenBank release input files - 
+# Note we are using the seqdb_engine release build files
+# if LOAD_MODE=incremental the jobstream determines its own input directory
 DATADIR=/net/hobbiton/data/seqdbs/blast/gb.build
 #DATADIR=/net/mtdoom/vol/rohan/data/downloads/ftp.ncbi.nih.gov/gbseqloader
 
+# Full path the the logs, reports, and archive directories
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
 ARCHIVEDIR=${FILEDIR}/archive
@@ -126,12 +131,16 @@ export FILEDIR DATADIR LOGDIR RPTDIR ARCHIVEDIR
 #  jobstream expects the variable PIPED_INFILE to be defined
 INFILE_NAME=STDIN
 
-# list of files to pipe to application
+# full path to the GenBank release input files
+# Note: we are using the seqdb_engine release build files
+# Note: if LOAD_MODE=incremental the jobstream determines its own input files
 PIPED_INFILES="${DATADIR}/gbrod_mouse.seq ${DATADIR}/gbsts_sts_mouse.seq ${DATADIR}/gbpat_mouse.seq ${DATADIR}/gbhtc_mouse_mrna.seq ${DATADIR}/gbhtg_mouse.seq ${DATADIR}/gbest_mouse.seq ${DATADIR}/gbgss_mouse.seq"
 
-# the release input files are not compressed, the non-cums are
+# the seqdb_engine release input files are not compressed, the non-cums are
 CAT_METHOD="/usr/local/bin/gunzip -c"
 #CAT_METHOD=/usr/bin/cat
+
+export INFILE_NAME PIPED_INFILES CAT_METHOD 
 
 # GenBank sequence record regex end delimiter
 #INFILE_END_DELIMITER="^//"
@@ -161,8 +170,16 @@ INFILE_BUFFERSIZE=21000000
 # incremental_initial doesn't use a MergeSplitProcessor
 SEQ_LOAD_MODE=incremental_initial
 
-export INFILE_NAME PIPED_INFILES INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER 
-export INFILE_USE_REGEX INFILE_BUFFERSIZE SEQ_LOAD_MODE 
+# max size of a set of non-cums to process in bytes -
+# 50MB compressed seems to be good
+NONCUM_MAX=50000000
+
+# get non-cum input files from RADAR if 'true' (SEQ_LOAD_MODE must be
+# incremental)
+RADAR_NONCUM_INPUT=false
+
+export INFILE_BEGIN_DELIMITER INFILE_END_DELIMITER INFILE_USE_REGEX
+export INFILE_BUFFERSIZE SEQ_LOAD_MODE NONCUM_MAX RADAR_NONCUM_INPUT
 
 # true if a virtual (computationally derived) sequence
 SEQ_VIRTUAL=false
@@ -249,7 +266,8 @@ MGD_SCP_FILENAME=updates
 #MGD_SCP_OUTSUFFIX=
 
 export MGD_SCP_PATH MGD_SCP_PREVENT_EXECUTE MGD_SCP_OK_TO_OVERWRITE
-#export MGD_SCP_FILENAME MGD_SCP_SUFFIX MGD_SCP_OUTFILENAME MGD_SCP_OUTSUFFIX
+export MGD_SCP_FILENAME 
+#export MGD_SCP_SUFFIX MGD_SCP_OUTFILENAME MGD_SCP_OUTSUFFIX
 
 ###########################################################################
 #
@@ -271,7 +289,8 @@ SCP_FILENAME=mergeSplits
 #SCP_OUTSUFFIX=
 
 export SCP_PATH SCP_PREVENT_EXECUTE SCP_OK_TO_OVERWRITE
-#export SCP_FILENAME SCP_SUFFIX SCP_OUTFILENAME SCP_OUTSUFFIX
+export SCP_FILENAME 
+#export SCP_SUFFIX SCP_OUTFILENAME SCP_OUTSUFFIX
 
 
 ###########################################################################
