@@ -1,10 +1,10 @@
-DATE: 04/30/2004
+DATE: 05/07/2004
 STAFF: sc
 CHANGES:
-1) gbseqload.config.defaults - changed GBSEQLOAD_SH to SEQLOAD_SH
+1) gbseqload.config.defaults - changed GBSEQLOAD_APP to SEQLOAD_APP
    added NONCUM_MAX and RADAR_NONCUM_INPUT
 2) gbseqload.sh 
-     - changed GBSEQLOAD_SH to SEQLOAD_SH. changed CONFIG_GBLOAD
+     - changed GBSEQLOAD_APP to SEQLOAD_APP. changed CONFIG_GBLOAD
        to CONFIG_LOAD. 
      - added call to radardbutilities getfilesToProcess.csh and 
        logProcessedFiles.csh. Gets input files from RADAR
