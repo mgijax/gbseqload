@@ -14,8 +14,8 @@ import org.jax.mgi.dbs.mgd.dao.SEQ_SequenceState;
 import org.jax.mgi.dbs.mgd.trans.TranslationException;
 
 /**
- * @is An object that resolves raw GenBank sequence attributes. Reports
- * discrepancies to the validation log.
+ * @is An object that resolves a SequenceRawAttributes to a SEQ_SequenceState.
+ * Reports discrepancies to the validation log.
  * @has
  *   <UL>
  *   <LI>Lookups to resolve attributes - see superclass
@@ -32,15 +32,15 @@ import org.jax.mgi.dbs.mgd.trans.TranslationException;
  */
 
 public class GBSeqAttributeResolver extends SequenceAttributeResolver {
-    private SEQ_SequenceState state;
+    /*private SEQ_SequenceState state;
     private Integer sequenceTypeKey;
     private Integer sequenceQualityKey;
     private Integer sequenceStatusKey;
     private Integer sequenceProviderKey;
     private String division;
-
+*/
     /**
-    * Constructs a Genbank Sequence Attribute Resolver.
+    * Constructs a GBSeqAttributeResolver.
     * @assumes Nothing
     * @effects Nothing
     * @param None
@@ -54,38 +54,37 @@ public class GBSeqAttributeResolver extends SequenceAttributeResolver {
 
     public GBSeqAttributeResolver() throws CacheException, ConfigException,
         DBException, TranslationException {
-           state = new SEQ_SequenceState();
+           //state = new SEQ_SequenceState();
        }
 
     /**
-     * resolves raw sequence attributes and creates a SEQ_SequenceState
+     * resolves a SequenceRawAttributes object to a SEQ_SequenceState
      * @assumes Nothing
      * @effects Nothing
-     * @param rawAttributes A set of raw sequence attributes
-     * @return sequenceState an object representing resolved sequence attributes
+     * @param rawAttributes A SequenceRawAttributes object
+     * @return sequenceState A SEQ_SequenceState
      * @throws Nothing
      */
 
     public SEQ_SequenceState resolveAttributes(
         SequenceRawAttributes rawAttributes)  throws KeyNotFoundException,
         TranslationException, DBException, CacheException, ConfigException {
+
+        // the state we are building
+        SEQ_SequenceState state = new SEQ_SequenceState();
+
         //////////////////////////////////
         // lookup all the foreign keys  //
         //////////////////////////////////
-        sequenceTypeKey = typeLookup.lookup(rawAttributes.getType());
-        sequenceQualityKey = qualityLookup.lookup(rawAttributes.getQuality());
-        sequenceStatusKey = statusLookup.lookup(rawAttributes.getStatus());
+        Integer sequenceTypeKey = typeLookup.lookup(rawAttributes.getType());
+        Integer sequenceQualityKey = qualityLookup.lookup(rawAttributes.getQuality());
+        Integer sequenceStatusKey = statusLookup.lookup(rawAttributes.getStatus());
 
-        // translate division to create provider name
-        division = rawAttributes.getDivision();
-        if(division.equals("ROD")) {
-           division = "Rodent";
-        }
-        else if(division.equals("PAT")) {
-            division = "Patent";
-        }
-        sequenceProviderKey = providerLookup.lookup(rawAttributes.getProvider()
-            + ":" + division);
+        // create provider name to lookup by catenating provider:division
+        // the provider lookup uses a translator to translate "GenBank:PAT" to
+        // "GenBank:Patent" and "GenBank:ROD" to "GenBank:Rodent"
+        Integer sequenceProviderKey = providerLookup.lookup(rawAttributes.getProvider()
+            + ":" + rawAttributes.getDivision());
 
         // set the foreign keys
         state.setSequenceTypeKey(sequenceTypeKey);

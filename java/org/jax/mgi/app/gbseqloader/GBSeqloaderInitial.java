@@ -40,15 +40,13 @@ import org.jax.mgi.dbs.mgd.MolecularSource.MSException;
 import org.jax.mgi.dbs.mgd.MolecularSource.MolecularSourceSC;
 
 public class GBSeqloaderInitial {
-    // Deciders to determine valid record
-    private Vector deciders;;
+
+    // Checks a record and determines if the sequence is from an organism
+    // we want to load
+    private GBOrganismChecker organismChecker;
 
     // Interpretor for GenBank format sequence records
     private GBSequenceInterpreter interp = null;
-
-    // Compound object holding raw data for a sequence, its references, seqids,
-    // and source
-    private SequenceInput si = null;
 
     // An input data file object for the input file.
     private InputDataFile inData = null;
@@ -137,34 +135,20 @@ public class GBSeqloaderInitial {
      * @throws MGIException if any objects cannot be instantiated
      */
 
-    private int initialize ()  throws MGIException {
+    private void initialize ()  throws MGIException {
         // Create an instance of the dataload logger.
         logger = DLALogger.getInstance();
         logger.logpInfo("Perform initialization", false);
         logger.logdInfo("Perform initialization",true);
 
-        deciders = new Vector();
-        // The organisms we are interested in interpreting
-         if(System.getProperty("MOUSE") != null) {
-             deciders.add(new GBMouseDecider());
-        }
-        if(System.getProperty("RAT") != null) {
-            deciders.add(new GBRatDecider());
-        }
-        if(System.getProperty("HUMAN") != null) {
-            deciders.add(new GBHumanDecider());
-        }
-        if (deciders.size() < 1) {
-            System.out.println("NO DECIDERS");
-            // Fatal exception
-            throw new MGIException(
-                "No valid Deciders supplied on the command line", false);
-        }
+        // an InputDataFile has a Configurator from which itgets its file name
+        inData =  new InputDataFile();
 
-        inData =  new InputDataFile(new InputDataCfg());
+        // create an organism checker to pass to the interpreter
+        organismChecker = new GBOrganismChecker();
 
         // Create an interpretor and get an iterator that uses that interpreter
-        interp = new GBSequenceInterpreter(deciders);
+        interp = new GBSequenceInterpreter(organismChecker);
         iter = inData.getIterator(interp);
 
         // Create a SQLDataManager for the MGD database from the factory.
@@ -193,7 +177,6 @@ public class GBSeqloaderInitial {
         // Create a Molecular Source Processor
         msProcessor = new MSProcessorSC();
         //msProcessor = new MSProcessor();
-        return 0;
     }
     /**
     * Iterates through sequence records, interpreting then resolving them to MGI
@@ -207,15 +190,16 @@ public class GBSeqloaderInitial {
     * @throws MGIException if there is an error
     */
 
-    private int load () throws MGIException {
+    private void load () throws MGIException {
         logger.logpInfo("Iterating through sequences", false);
         logger.logdInfo("Iterating through sequences", true);
 
-        // reuse the sequence state returned from the sequence resolver
+        // the sequence state returned from the sequence resolver
         SEQ_SequenceState sequenceState;
-        //ACC_AccessionState primaryState;
-        // reuse the sequence source association state
-        SEQ_Source_AssocState sourceAssocState;
+
+        // Compound object holding raw data for a sequence, its references, seqids,
+        // and source returned from the InputDataFile iterator
+        SequenceInput si;
 
         // number of valid sequences WITHOUT processing errors:
         int passedCtr = 0;
@@ -233,10 +217,12 @@ public class GBSeqloaderInitial {
                 errCtr++;
                 continue;
             }
-            // resolve raw sequence, if resolving errors log and go to next sequence
+            // resolve raw sequence
             try {
                 sequenceState = seqResolver.resolveAttributes(si.getSeq());
             }
+            // if resolving errors log and go to next sequence, all other
+            // exceptions thrown as MGIException out to main
             catch (KeyNotFoundException e) {
                 logger.logdErr(e.getMessage());
                 errCtr++;
@@ -248,8 +234,8 @@ public class GBSeqloaderInitial {
 
             // resolve primary accession attributes and set the accession state
             // in the Sequence
-            // Note: errors resolving accessions are fatal; indicates a bad
-            // LogicalDB value in the config file
+            // Note: Exceptions thrown resolving accessions are thrown
+            // out to main; indicates a bad LogicalDB value in the config file
             sequence.setAccPrimary(
                 accResolver.resolveAttributes(
                     si.getPrimaryAcc(), sequence.getSequenceKey()));
@@ -259,37 +245,32 @@ public class GBSeqloaderInitial {
 
             // resolve secondary accessions and set the accession states in the
             // Sequence
-            // Note: errors resolving accessions are fatal; indicates a bad
-            // LogicalDB value in the config file
+            // Note: Exceptions thrown resolving accessions are thrown
+            // out to main; indicates a bad LogicalDB value in the config file
             Iterator i = si.getSecondary().iterator();
             while(i.hasNext()) {
-                sequence.setAccSecondary(
-                    accResolver.resolveAttributes(
-                        (AccessionRawAttributes)i.next(),
-                            sequence.getSequenceKey()));
-            }
-
-            Vector second = si.getSecondary();
-            if (second != null) {
-                i = second.iterator();
-                while (i.hasNext()) {
-                    logger.logdDebug("Secondary: " +
-                        ((AccessionRawAttributes)i.next()).getAccID(), false);
-                }
+                AccessionRawAttributes ara = (AccessionRawAttributes)i.next();
+                logger.logdDebug("Secondary: " +
+                        (ara).getAccID(), false);
+                sequence.addAccSecondary(
+                    accResolver.resolveAttributes(ara,
+                        sequence.getSequenceKey()));
             }
 
             // resolve sequence reference associations and set the states
             // in the Sequence
-            // Note: errors resolving reference associations are fatal;
-            // indicates a logicalDB other than MEDLINE or PubMed
+            // Note: Exceptions thrown resolving reference associations are
+            // are thrown out to main; indicates a logicalDB other than MEDLINE
+            // or PubMed
             i = si.getRefs().iterator();
             while(i.hasNext()) {
                 refAssocState = refAssocProcessor.process(
                     (SeqRefAssocPair)i.next(),
                         sequence.getSequenceKey());
+
                 // null if reference not in MGI
                 if(refAssocState != null) {
-                    sequence.setRefAssoc(refAssocState);
+                    sequence.addRefAssoc(refAssocState);
                 }
             }
             // resolve and process Molecular Source then create SEQ_Source
@@ -313,7 +294,7 @@ public class GBSeqloaderInitial {
                     msSourceSC.setageMinAgeMax(new Float( -1));
 
                     // create a new source association state
-                    sourceAssocState = new SEQ_Source_AssocState();
+                    SEQ_Source_AssocState sourceAssocState = new SEQ_Source_AssocState();
 
                     // set the sequence key and set in the source association
                     sourceAssocState.setSequenceKey(sequence.getSequenceKey());
@@ -322,7 +303,7 @@ public class GBSeqloaderInitial {
                     sourceAssocState.setSourceKey(msSourceSC.getMSKey());
 
                     // set the source association in the Sequence
-                    sequence.setSeqSrcAssoc(sourceAssocState);
+                    sequence.addSeqSrcAssoc(sourceAssocState);
 
                     // this is temporary - we assume insertion of all source;
                     // here we'll need to should check an attribute
@@ -336,7 +317,7 @@ public class GBSeqloaderInitial {
                 errCtr++;
                 continue;
             }
-            sequence.process();
+            sequence.sendToStream();
             if (passedCtr > 0 && passedCtr%10000 == 0)
                 logger.logdInfo("Processed " + passedCtr + " input records",false);
             passedCtr++;
@@ -344,22 +325,15 @@ public class GBSeqloaderInitial {
         // report count of total sequences processed
         // note until we remove the check for named library this total will
         // reflect only anonymous source sequences
-        logger.logpInfo("Total sequences processed: " + ((SeqDecider)deciders.get(0)).getAllCtr(), false);
+        Vector v = organismChecker.getDeciderCounts();
+        Iterator i = v.iterator();
+        while (i.hasNext()) {
+               logger.logpInfo((String)i.next(), false);
+        }
 
-        // report count of the valid sequences processed
-        logger.logpInfo("Total valid sequences processed: " + passedCtr, false);
 
         // report count of the valid sequences NOT processed because of errors
         logger.logpInfo("Total valid sequences with errors: " + errCtr, false);
-
-        // report count of sequences  processed by organism
-        Iterator deciderI = deciders.iterator();
-        SeqDecider s;
-        while (deciderI.hasNext()) {
-            s = (SeqDecider)deciderI.next();
-            logger.logpInfo("Total valid " + s.getName() + " sequences processed: "
-                            + s.getTrueCtr(), false);
-        }
 
         // close the stream; this executes bcp, batch, sql scripts etc.
         logger.logdInfo("Executing bcp and sql script files", false);
@@ -367,7 +341,5 @@ public class GBSeqloaderInitial {
 
         // close the logger, remove this when writing to log from the jobstream
         logger.close();
-        return 0;
-
     }
 }

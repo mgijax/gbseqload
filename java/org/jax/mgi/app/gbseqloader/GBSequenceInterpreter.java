@@ -11,7 +11,6 @@ import org.jax.mgi.shr.dla.seqloader.SequenceInterpreter;
 import org.jax.mgi.shr.dla.seqloader.SequenceInput;
 import org.jax.mgi.shr.dla.seqloader.SeqloaderConstants;
 import org.jax.mgi.shr.dla.seqloader.SeqRefAssocPair;
-import org.jax.mgi.shr.dla.seqloader.OrganismChecker;
 import org.jax.mgi.shr.dla.seqloader.DateConverter;
 import org.jax.mgi.shr.dla.seqloader.AccessionRawAttributes;
 import org.jax.mgi.shr.dla.seqloader.RefAssocRawAttributes;
@@ -19,7 +18,6 @@ import org.jax.mgi.shr.dla.seqloader.SequenceRawAttributes;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.ioutils.RecordFormatException;
 import org.jax.mgi.shr.StringLib;
-import org.jax.mgi.dbs.mgd.AccessionLib;
 import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
 
 
@@ -29,11 +27,13 @@ import org.jax.mgi.dbs.mgd.MolecularSource.MSRawAttributes;
      *     Determines if a GenBank sequence record is valid.
      * @has
      *   <UL>
-     *   <LI> A raw sequence object
-     *   <LI> A raw accession object for its primary and each secondary id
-     *   <LI> A raw reference association object for each reference that has a
+     *   <LI>A SequenceInput object into which it bundles:
+     *   <LI>A SequenceRawAttributes object
+     *   <LI>An AccessionRawAttributes object for its primary seqid
+     *   <LI>One AccessionRawAttributes object for each secondary seqid
+     *   <LI> A RefAssocRawAttributes object for each reference that has a
      *        PubMed and/or Medline id
-     *   <LI> A raw source object
+     *   <LI> A MSRawAttributes
      *   <LI> A set of String constants for parsing
      *   </UL>
      * @does
@@ -55,7 +55,8 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     private Pattern organismPattern = Pattern.compile("clone_lib=",
         Pattern.MULTILINE);
 
-    // Strings to find GB seq record TAGS
+    // String constants to find GB seq record TAGS and indicate the current
+    // record section we are looking for
     private static String LOCUS = "LOCUS";
     private static String DEFINITION = "DEFINITION";
     private static String ACCESSION = "ACCESSION";
@@ -65,8 +66,24 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     private static String MEDLINE = "MEDLINE";
     private static String PUBMED = "PUBMED";
     private static String FEATURES = "FEATURES";
+
+    // this is the FEATURES sub-section keyword 'source' as opposed to keyword
+    // 'SOURCE'
     private static String SOURCE = "source";
     private static String ORIGIN = "ORIGIN";
+
+    // int constants to indicate the current
+    // record section we are looking for
+    private static int LOCUS_SECTION = 1;
+    private static int DEFINITION_SECTION = 2;
+    private static int ANOTHER_DEF_LINE = 3;
+    private static int ACCESSION_SECTION = 4;
+    private static int ANOTHER_ACCESSION_LINE = 5;
+    private static int ORGANISM_SECTION = 6;
+    private static int REFERENCE_SECTION = 7;
+    private static int ANOTHER_REFERENCE_LINE = 8;
+    private static int SOURCE_SECTION = 9;
+    private static int ANOTHER_SOURCE_LINE = 10;
 
     // Strings to find GB seq record source qualifiers
     private static String LIBRARY = "/clone_lib";
@@ -84,191 +101,220 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     // its source, references, and accessions
     private SequenceInput sequenceInput = new SequenceInput();
 
-    // raw attributes for a sequence
+    // raw attributes for a sequence - reused by calling reset()
     private SequenceRawAttributes rawSeq = new SequenceRawAttributes();
 
-    // raw attributes for a sequences source
+    // raw attributes for a sequences source - reused by calling reset()
     private MSRawAttributes ms = new MSRawAttributes();
 
-    // raw attributes for the primary seqid
-    private AccessionRawAttributes primary = new AccessionRawAttributes();
+    // checks a sequence record to see if it an organism we want to load
+    GBOrganismChecker organismChecker;
 
-    // temp reference reused in createAccession()
-    private AccessionRawAttributes tempSeqid;
-
-    // Accession prefix and numeric parts
-    private Vector splitAccession;
-
-    //////////////////////
-    // parsing flags    //
-    //////////////////////
-    private boolean moreDefLines;
-    private boolean accFound;
-    private boolean sourceFound;
-
-    //////////////////////////////////////////////////////////////////
-    // vars to hold sections of a sequence record for later parsing //
-    //////////////////////////////////////////////////////////////////
-    private String locus;
-    private StringBuffer definition;
-    private StringBuffer accession;
-    private String version;
-    private String organism;
-    private StringBuffer classification;
-    private StringBuffer reference;
-    private StringBuffer source;
-
-    /////////////////////////////////////////
-    // helper vars for parsing the record  //
-    /////////////////////////////////////////
-
-    // split a record lines
-    private StringTokenizer st;
-
-    // a line in the record
-    private String line;
-
-    // split a line into fields; some methods use 'st' and 'tokenizer'
-    private StringTokenizer tokenizer;
-
-    // a field from a line
-    private String field;
-
-    // Uses a set of deciders to determine if the sequence is from an organism
-    // of interest
-    OrganismChecker organismChecker;
 
     /**
-    * Constructs a GenBank Sequence interpretor
+    * Constructs a GBSequenceInterpreter
     * @assumes Nothing
     * @effects Nothing
     * @param None
     * @throws ConfigException if can't find configuration file
     */
 
-    public GBSequenceInterpreter(Vector deciders) throws ConfigException {
-        super();
-
-        // initialize all instance variables
-        reset();
-
+    public GBSequenceInterpreter(GBOrganismChecker oc) throws ConfigException {
         // Create an organism checker for GenBank with the set of deciders
-        this.organismChecker = new OrganismChecker(deciders, SeqloaderConstants.GENBANK);
+        this.organismChecker = oc;
     }
 
     /**
-     * Parses a sequence record,  creates a SequenceInput object from
+     * Parses a sequence record and  creates a SequenceInput object from
      * Configuration and parsed values
      * @assumes Nothing
      * @effects Nothing
      * @param rcd A sequence record
-     * @return A SequenceInput object
+     * @return A SequenceInput object representing 'rcd'
      * @throws RecordFormatException if we can't parse an attribute because of
      *         record formatting errors
      */
 
     public Object interpret(String rcd) throws RecordFormatException {
-        // initialize all instance variables
-        reset();
+
+        // the current section we are looking for
+        int currentSection = LOCUS_SECTION;
+
+        // Initialize vars that hold sequence record sections for later parsing
+        String locus = null;
+        StringBuffer definition = new StringBuffer();
+        StringBuffer accession  = new StringBuffer();
+        String version = null;
+        String organism = null;
+        StringBuffer classification  = new StringBuffer();
+        StringBuffer reference = new StringBuffer();
+        StringBuffer source = new StringBuffer();
+
+        // reset reused instance variables
+        sequenceInput.reset();
+        rawSeq.reset();
+        ms.reset();
 
         // split the record into lines
-        st = new StringTokenizer(rcd, SeqloaderConstants.CRT);
+        StringTokenizer lineSplitter = new StringTokenizer(rcd, SeqloaderConstants.CRT);
+        String line;
 
         // iterate through each line getting individual sections of the sequence
-        while (st.hasMoreTokens()) {
-            line = st.nextToken().trim();
+        while (lineSplitter.hasMoreTokens()) {
+          // be sure to trim each line so String.startsWith works properly
+          line = lineSplitter.nextToken().trim();
 
-            // get the LOCUS line
-            if(line.startsWith(LOCUS)) {
-                locus = line;
+          // if we are currently looking for the LOCUS line check to see if
+          // 'line' is the LOCUS line
+          if (currentSection== LOCUS_SECTION) {
+            if (line.startsWith(LOCUS)) {
+              // get the LOCUS line
+              locus = line;
+              currentSection = DEFINITION_SECTION;
             }
-            // get the first DEFINITION line
-            else if(line.startsWith(DEFINITION)) {
-                definition.append(line);
+          }
+          // if we are currently looking for the DEFINITION line check to see
+          // if 'line' is the DEFINITION line
+          else if (currentSection == DEFINITION_SECTION) {
+            if (line.startsWith(DEFINITION)) {
+              // get the first DEFINITION line
+              definition.append(line);
 
-                // > 1 def line if first line does not end w/PERIOD; set a flag
-                if(! line.endsWith(SeqloaderConstants.PERIOD) ) {
-                    moreDefLines = true;
-                }
+              // > 1 def line if first line does not end w/PERIOD
+              if (!line.endsWith(SeqloaderConstants.PERIOD)) {
+                // Now were looking for another definition line
+                currentSection = ANOTHER_DEF_LINE;
+              }
+              else {
+                // now we are looking for the ACCESSION line
+                currentSection = ACCESSION_SECTION;
+              }
             }
-            // get another DEFINITION line
-            else if(moreDefLines ) {
-                definition.append(SeqloaderConstants.SPC + line);
+          }
+          // if we are currently looking for another definition line, then get
+          // it
+          else if (currentSection == ANOTHER_DEF_LINE) {
+            //get another DEFINITION line
+            definition.append(SeqloaderConstants.SPC + line);
 
-                // period indicates last def line
-                if(line.endsWith(SeqloaderConstants.PERIOD) ) {
-                    moreDefLines = false;
-                }
+            // period indicates last def line
+            if (line.endsWith(SeqloaderConstants.PERIOD)) {
+              // now we are looking for the ACCESSION line
+              currentSection = ACCESSION_SECTION;
             }
-            // get the first ACCESSION line
-            else if (line.startsWith(ACCESSION)) {
-                accession.append(line + SeqloaderConstants.CRT);
+          }
+          // if we are currently looking for the first ACCESSION line check to see
+          // if 'line' is the ACCESSION line
+          else if (currentSection == ACCESSION_SECTION) {
+            if (line.startsWith(ACCESSION)) {
+              // get the first ACCESSION line
+              accession.append(line + SeqloaderConstants.CRT);
+              // now we are looking for another accession line
+              currentSection = ANOTHER_ACCESSION_LINE;
+            }
+          }
+          // if we are currently looking for another accession line
+          else if (currentSection == ANOTHER_ACCESSION_LINE) {
+            // if 'line' is not the VERSION line, it is another accession line
+            if (!line.startsWith(VERSION)) {
+              accession.append(line + SeqloaderConstants.CRT);
+            }
+            // if 'line' is the VERSION line get it. Now we are looking for the
+            // ORGANISM line
+            else {
+              // now we are looking for ORGANISM
+              version = line;
+              currentSection = ORGANISM_SECTION;
+            }
+          }
+          // if we are currently looking for the ORGANISM line check to see if
+          // 'line is the ORGANISM line
+          else if (currentSection == ORGANISM_SECTION) {
+            if (line.startsWith(ORGANISM)) {
+              // get the ORGANISM line
+              organism = line;
 
-                // We have found first ACCESSION line
-                accFound = true;
+              // now we are looking for the first REFERENCE line
+              currentSection = REFERENCE_SECTION;
             }
-            else if (line.startsWith(VERSION)) {
-            // Parse the VERSION line to get the version number
-            // The VERSION line indicates the end of the ACCESSION
-            //      lines
-            // The VERSION line contains two identifiers:
-            // 1) The PrimaryAccession.versionNumber
-            // 2) The NCBI GI identifier
-                version = line;
-                accFound = false;
+          }
+
+          // if we are currently looking for the first REFERENCE line check to
+          // see if 'line' is the REFERENCE line
+          else if (currentSection == REFERENCE_SECTION) {
+            if (line.startsWith(REFERENCE)) {
+              // get the first REFERENCE line
+              reference.append(line + SeqloaderConstants.CRT);
+              currentSection = ANOTHER_REFERENCE_LINE;
             }
-            // get another ACCESSION line
-            else if(accFound) {
-           // we have the first ACCESSION line but haven't reached
-           // VERSION line yet so we have multiple ACCESSION lines
-           // Note the test for VERSION must be before this test
-                accession.append(line + SeqloaderConstants.CRT);
+          }
+          // if we are looking for another REFERENCE line
+          else if (currentSection == ANOTHER_REFERENCE_LINE) {
+            // check to see if 'line' is the FEATURES line
+            if (! line.startsWith(FEATURES)){
+                reference.append(line + SeqloaderConstants.CRT);
             }
-            // get the entire REFERENCE section
-            else if(line.startsWith(REFERENCE)) {
-                // add reference lines until we find the FEATURES line
-                while (! line.startsWith(FEATURES) && st.hasMoreTokens()){
-                    reference.append(line + SeqloaderConstants.CRT);
-                    line = st.nextToken().trim();
-                }
+            // if it is the FEATURES line, we are now looking for the
+            // first features source line
+            else {
+              currentSection = SOURCE_SECTION;
             }
-            // get only ONE source section
-            else if(line.startsWith(SOURCE) && ! sourceFound && st.hasMoreTokens()) {
-                source.append(line +  SeqloaderConstants.CRT);
-                line = st.nextToken().trim();
-                // get all the lines for ONE source. We are done when we find
-                // another source line or when we find the ORIGIN line
-                while(! line.startsWith(SOURCE) && ! line.startsWith(ORIGIN) &&
-                      st.hasMoreTokens()) {
-                      source.append(line +  SeqloaderConstants.CRT);
-                      line = st.nextToken().trim();
-                }
-                // reset flag so we don't get another source
-                sourceFound = true;
+          }
+
+          // if we are looking for the first FEATURES source line, check to
+          // see if 'line' is a FEATURES source line
+          else if (currentSection == SOURCE_SECTION) {
+            if (line.startsWith(SOURCE)) {
+              // get the first features source line
+              source.append(line + SeqloaderConstants.CRT);
+
+              // now we are looking for another features source line
+              currentSection = ANOTHER_SOURCE_LINE;
             }
-            // get the ORGANISM line
-            else if (line.startsWith(ORGANISM)) {
-                organism = line;
+          }
+          // if we are looking for another features source line
+          else if (currentSection == ANOTHER_SOURCE_LINE) {
+            // we only want ONE features source section; if we find another
+            // features source line or we find the ORIGIN line we are done
+            if (!line.startsWith(SOURCE) && !line.startsWith(ORIGIN)) {
+              source.append(line + SeqloaderConstants.CRT);
             }
-            // source is the last thing we parse; we're done
-            if (sourceFound) {
-                break;
+            else {
+              break;
             }
+          }
         }
-        // Now parse the individual sequence record sections
-        // Note: Order of method calls is important - these methods do two things
-        // 1. set attributes of the objects that make up a SequenceInput e.g.
-        // set attributes of SequenceRawAttributes, MSRawAttributes, etc
-        // 2. set the attributes that make up a SequenceInput e.g.
-        // set sequence, molecular source, references, etc
-        setSeqFromConfig();
+
+        // set attributes from Configuration (super class hold the values
+        // of virtual, provider, and seqStatus)
+        rawSeq.setVirtual(virtual);
+        rawSeq.setProvider(provider);
+        rawSeq.setStatus(seqStatus);
+
+        ///////////////////////////////////////////////////////////////////////
+        // Now parse the individual sequence record sections and set values in
+        // *RawAttributes objects
+        ///////////////////////////////////////////////////////////////////////
         parseLocus(locus);
         parseDefinition(definition.toString());
-        parseAccession(accession.toString());
         parseVersion(version);
         parseOrganism(organism);
         parseSource(source.toString());
+
+        // this method also adds AccessionRawAttributes objects
+        // for the primary seqid and any secondary seqids to the SequenceInput object
+        parseAccession(accession.toString());
+
+        // this method also adds RefAssocRawAttributes objects to the
+        // SequenceInput object
         parseReference(reference.toString());
+
+        // add 'ms' to 'sequenceInput'
+        sequenceInput.addMSource(ms);
+
+        // set rawSeq in 'sequenceInput
+        sequenceInput.setSeq(rawSeq);
+
         return sequenceInput;
     }
 
@@ -289,78 +335,39 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     }
 
     /**
-     * Initializes/resets instance variables
-     * @assumes Nothing
-     * @effects Nothing
-     * @param record A GenBank sequence record
-     * @return true if we want to load this sequence
-     * @throws Nothing
-     */
-
-    private void reset () {
-        //////////////////////////////////////////////////////
-        // reset the SequenceInput and its parts            //
-        //////////////////////////////////////////////////////
-        sequenceInput.reset();
-        rawSeq.reset();
-        ms.reset();
-        primary.reset();
-        tempSeqid = null;
-        splitAccession = null;
-
-        /////////////////////////
-        // reset parsing flags //
-        /////////////////////////
-        moreDefLines = false;
-        accFound = false;
-        sourceFound = false;
-
-        ////////////////////////////////////////////////////////////////////////
-        // reset vars that hold sections of a sequence record for later parsing
-        ////////////////////////////////////////////////////////////////////////
-        locus = null;
-        definition = new StringBuffer();
-        accession  = new StringBuffer();
-        version = null;
-        organism = null;
-        classification  = new StringBuffer();
-        reference = new StringBuffer();
-        source = new StringBuffer();
-
-        /////////////////////////////////////
-        // reset helper vars for parsing   //
-        /////////////////////////////////////
-        st = null;
-        line = null;
-        tokenizer = null;
-        field = null;
-
-    }
-    /**
-     * Sets sequence attributes from the Configuration file.
-     * @assumes Nothing
-     * @effects Nothing
-     * @param None
-     * @return Nothing
-     * @throws Nothing
-     */
-
-    private void setSeqFromConfig() {
-        rawSeq.setVirtual(virtual);
-        rawSeq.setProvider(provider);
-        rawSeq.setStatus(seqStatus);
-    }
-
-
-    /**
-       * Parses molecular source attributes from the SOURCE section of a
-       * GenBank sequence record and creates a MSRawAttributes object. Sets
-       * the the MSRawAttributes and SequenceRawAttributes in
-       * the SequenceInput
-       * @assumes organism has been set on the MSRawAttributes object and
-       *  all non-source SequenceRawAttributes have been set
+       * Parses molecular source attributes from the first FEATURES source
+       * section of a GenBank sequence record and sets them in MSRawAttributes
+       * and SequencRawAttributes objects
+       * @assumes Nothing
        * @effects Nothing
-       * @param source SOURCE section parsed from a GenBank sequence record
+       * @param source first FEATURES source section parsed from a GenBank
+       * sequence record<BR>
+       * FEATURES source section example, note that the first and last lines
+       * (FEATURES and ORIGIN are not included in the text of 'source' but added
+       *  here for clarity. Note also that this is a contrived source section
+       *  used in testing:<BR>
+       * <PRE>
+       * FEATURES             Location/Qualifiers
+       *      source          1..3133
+       *                      /organism="Mus musculus"
+       *                      /db_xref="taxon:10090"
+       *                      /tissue_type="placenta day 20"
+       *                      /dev_stage="dpc 14.5"
+       *                      /strain="129SJVMus"
+       *                      /sex="Female"
+       *                      /cell_line="MS-1"
+       *       CDS            155..1597
+       *                      /codon_start=1
+       *                      /product="GATA-2 protein"
+       *                      /protein_id="BAA19053.1"
+       *                      /db_xref="GI:1754586"
+       *                      /translation="MEVAPEQPRWMAHPAVLNAQHPDSHHPGLAHNYMEPAQLLPPDE
+       *                      VDVFFNHLDSQGNPYYANPAHARARVSYSPAHARLTGGQMCRPHLLHSPGLPWLDGGK
+       *      polyA_site      3133
+       *                      /note="16 A nucleotides"
+       *      BASE COUNT      681 a    949 c    828 g    675 t
+       *      ORIGIN
+       * </PRE>
        * @return nothing
        * @throws Nothing
        */
@@ -368,7 +375,9 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     private void parseSource(String source) throws RecordFormatException {
 
         // Split the source section into individual lines
-        st = new StringTokenizer(source, SeqloaderConstants.CRT);
+        StringTokenizer lineSplitter = new StringTokenizer(
+            source, SeqloaderConstants.CRT);
+        String line;
 
         // a qualifier line split into qualifier and value on '='
         ArrayList splitLine = null;
@@ -379,15 +388,8 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
         // value of the source qualifier
         String value = null;
 
-        // Set strain, tissue, gender, and cellLine to 'Not Specified'
-        // if we find values for them they'll be reset
-        ms.setStrain(SeqloaderConstants.NOT_SPECIFIED);
-        ms.setTissue(SeqloaderConstants.NOT_SPECIFIED);
-        ms.setGender(SeqloaderConstants.NOT_SPECIFIED);
-        ms.setCellLine(SeqloaderConstants.NOT_SPECIFIED);
-
-        while(st.hasMoreTokens()) {
-            line = st.nextToken();
+        while(lineSplitter.hasMoreTokens()) {
+            line = lineSplitter.nextToken().trim();
             // all qualifiers start with '/'
             if (line.startsWith(SeqloaderConstants.SLASH)) {
                 // split the qualifier line on '='
@@ -429,14 +431,6 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
                 }
             }
         }
-        // add 'ms' to 'sequenceInput'
-        // Note: Assumes that ms organism attribute has been set
-         sequenceInput.addMSource(ms);
-
-        // set rawSeq in 'sequenceInput
-        // Note: Assumes that all non-source rawSeq attributes have already
-        // been set
-        sequenceInput.setSeq(rawSeq);
     }
 
     /**
@@ -444,10 +438,29 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * GenBank sequence record where they exist. Creates a RefAssocRawAttributes
      * object for each id, bundles them in a pair, then sets the pair in the
      * SequenceInput object.
-     * If a reference has only one id, the other in the pair is null.
+     * If a reference has only one id, the other in the SeqRefAssocPair is null.
      * @assumes Nothing
      * @effects Nothing
      * @param reference All REFERENCE sections parsed from a GenBank sequence record
+     * <BR>
+     * REFERENCE section example, note that this is a contrived source section
+     * used in testing. I added reference ids found in MGI: <BR>
+     * <PRE>
+     * REFERENCE   1  (bases 1 to 3133)
+     *   AUTHORS   Yamamoto,M.
+     *   TITLE     Direct Submission
+     *   JOURNAL   Submitted (25-DEC-1996) Masayuki Yamamoto, Institute of Basic
+     *             Medical Sciences, University of Tsukuba, Molecular and
+     *             Developmental Biology; Tennoudai, Tsukuba, Ibaragi 305, Japan
+     *             (E-mail:masiya@igaku.md.tsukuba.ac.jp, Tel:81-0298-53-3111,
+     *             Fax:81-0298-53-6965)
+     * REFERENCE   2  (sites)
+     *   AUTHORS   Suwabe,N., Minegishi,N. and Yamamoto,M.
+     *   TITLE     mouse GATA-2 cDNA
+     *   JOURNAL   Unpublished (1996)
+     *   MEDLINE   92239361
+     *   PUBMED    1571281
+     * </PRE>
      * @return nothing
      * @throws Nothing
      */
@@ -458,23 +471,31 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
         String medline = null;
 
         // split the REFERENCE section into individual lines
-        st = new StringTokenizer(reference, SeqloaderConstants.CRT);
+        StringTokenizer lineSplitter = new StringTokenizer(
+            reference, SeqloaderConstants.CRT);
+        String line;
 
         // get the first REFERENCE line and throw it away
-        line = st.nextToken();
+        line = lineSplitter.nextToken().trim();
 
-        while(st.hasMoreTokens()) {
-            line = st.nextToken().trim();
+        while(lineSplitter.hasMoreTokens()) {
+            line = lineSplitter.nextToken().trim();
 
             // get pubmed/medline id for one reference
-            while (!line.startsWith(REFERENCE) && st.hasMoreTokens()){
+            while (!line.startsWith(REFERENCE) ){
                 if (line.startsWith(PUBMED)) {
                     pubmed = ( (String) StringLib.split(line).get(1)).trim();
                 }
                 else if (line.startsWith(MEDLINE)) {
                     medline = ( (String) StringLib.split(line).get(1)).trim();
                 }
-                line = st.nextToken().trim();
+                if (lineSplitter.hasMoreTokens()) {
+                  line = lineSplitter.nextToken().trim();
+                }
+                // this was the last line of 'reference'
+                else {
+                  break;
+                }
             }
             // if we got any ids for this reference create reference objects and
             // add them to SequenceInput object
@@ -493,15 +514,21 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * @assumes Nothing
      * @effects Nothing
      * @param organism The ORGANISM line from a GenBank sequence record
+     * <BR>
+     * ORGANISM line example:<BR>
+     * <PRE>
+     *   ORGANISM  Mus musculus
+     * </PRE>
      * @return nothing
      * @throws Nothing
      */
 
     private void parseOrganism(String organism) {
+        String rawOrganism = organism.substring(9).trim();
         // set the organism field of raw sequence and raw molecular source
-        rawSeq.setRawOrganisms(organism.substring(9).trim());
+        rawSeq.setRawOrganisms(rawOrganism);
         rawSeq.setNumberOfOrganisms(0);
-        ms.setOrganism(organism.substring(9).trim());
+        ms.setOrganism(rawOrganism);
     }
 
     /**
@@ -510,22 +537,25 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * @assumes Nothing
      * @effects Nothing
      * @param version The VERSION line parsed from a GenBank sequence record
+     * <BR>
+     * VERSION line example:<BR>
+     * VERSION     AB000096.1  GI:1754585
      * @return Nothing
      * @throws Nothing
      */
 
     private void parseVersion(String version) {
-        // split the VERSION line into individual tokens
-        tokenizer = new StringTokenizer(version);
-
+        // split the VERSION line into individual fields
+        StringTokenizer fieldSplitter = new StringTokenizer(version);
+        String field;
         // discard the VERSION tag field
-        field = tokenizer.nextToken();
+        field = fieldSplitter.nextToken();
 
         // get the version number by splitting the token on '.' and
         // taking the second token e.g. given AC002397.1 the version we
         // are setting is "1"
         String vers = ((String)StringLib.split(
-            tokenizer.nextToken(), SeqloaderConstants.PERIOD).get(1)).trim();
+            fieldSplitter.nextToken(), SeqloaderConstants.PERIOD).get(1)).trim();
         rawSeq.setVersion(vers);
     }
 
@@ -539,39 +569,48 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * @assumes Nothing
      * @effects Nothing
      * @param accession The ACCESSION section of a GenBank sequence record.
+     * <BR>
+     * example of ACCESSION section, note this a contrived section used in testing
+     * secondary ids that span multiple lines:<BR>
+     * ACCESSION   AB000098 AB000097 AB000096 AB000095 AB000094 AB000093 AB000092
+     *             AB000091
      * @return Nothing
      * @throws Nothing
      */
 
     private void parseAccession(String accession) {
         // split the ACCESSION section into individual lines
-        st = new StringTokenizer(accession, SeqloaderConstants.CRT);
-        line = st.nextToken();
+        StringTokenizer lineSplitter = new StringTokenizer(
+            accession, SeqloaderConstants.CRT);
 
-        // split the line into individual tokens
-        tokenizer = new StringTokenizer(line);
+
+        String line = lineSplitter.nextToken().trim();
+
+        // split the accession line into individual tokens
+        StringTokenizer fieldSplitter = new StringTokenizer(line);
+        String field;
 
         // discard the ACCESSION tag field
-        field = tokenizer.nextToken();
+        field = fieldSplitter.nextToken();
 
         // create a primary accession object
-        field = tokenizer.nextToken();
+        field = fieldSplitter.nextToken().trim();
         createAccession(field, Boolean.TRUE);
 
         // create 2ndary accessions from first ACCESSION line
-         while(tokenizer.hasMoreTokens())
+         while(fieldSplitter.hasMoreTokens())
          {
-             field = tokenizer.nextToken().trim();
+             field = fieldSplitter.nextToken().trim();
              // add a secondary accession to SequenceInput
              createAccession(field, Boolean.FALSE);
          }
 
          // create 2ndary accessions from remaining ACCESSION lines
-         while(st.hasMoreTokens()) {
-             line = st.nextToken();
-             tokenizer = new StringTokenizer(line);
-             while(tokenizer.hasMoreTokens()) {
-                 field = tokenizer.nextToken().trim();
+         while(lineSplitter.hasMoreTokens()) {
+             line = lineSplitter.nextToken().trim();
+             fieldSplitter = new StringTokenizer(line);
+             while(fieldSplitter.hasMoreTokens()) {
+                 field = fieldSplitter.nextToken().trim();
                  // add a secondary accession to SequenceInput
                  createAccession(field, Boolean.FALSE);
 
@@ -586,6 +625,11 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * @assumes Nothing
      * @effects Nothing
      * @param definition The definition section of a GenBank sequence record
+     * <BR>
+     * Example of DEFINITION section, note that this section can span multiple lines
+     * in a record, but 'definition' does not contain newlines:
+     * DEFINITION  Mus musculus mRNA for GATA-2 protein, complete cds
+     * <BR>
      * @return Nothing
      * @throws Nothing
      */
@@ -593,10 +637,12 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
     private void parseDefinition(String definition) {
         if (definition.length() > 255) {
             rawSeq.setDescription(definition.substring(12, 255));
+
         }
         else {
             rawSeq.setDescription(definition.substring(12));
         }
+         System.out.println(definition.substring(12));
     }
 
     /**
@@ -606,6 +652,10 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      * @assumes Nothing
      * @effects Nothing
      * @param locus The LOCUS line of a GenBank sequence record.
+     * <BR>
+     * Example of LOCUS line:<BR>
+     * LOCUS       AB000096                3133 bp     DNA    linear   ROD 05-FEB-1999
+     * <BR>
      * @return Nothing
      * @throws Nothing
      */
@@ -637,7 +687,7 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
 
     /**
      * Creates one RefAssocRawAttributes object each for a pubmed id and a
-     * medline id,  bundles them in a pair, then sets the pair in the
+     * medline id,  bundles them in a SeqRefAssocPari, then sets the pair in the
      * SequenceInput object. If 'pubmed' or 'medline' is null, then the
      * RefAssociationRawAttribute for that id is null
      * @assumes Nothing
@@ -681,45 +731,34 @@ public class GBSequenceInterpreter extends SequenceInterpreter {
      */
 
     private void createAccession(String accid, Boolean preferred) {
-        // create new object for secondary seqid
-        if (preferred != Boolean.TRUE) {
-            tempSeqid = new AccessionRawAttributes();
-        }
-        // reuse object for primary
-        else {
-            tempSeqid = primary;
-            tempSeqid.reset();
-        }
+
+        AccessionRawAttributes seqid = new AccessionRawAttributes();
+
         // set attributes of AccessionRawAttributes
-        tempSeqid.setAccid(accid);
-        tempSeqid.setIsPreferred(preferred);
+        seqid.setAccid(accid);
+        seqid.setIsPreferred(preferred);
 
         // GenBank seqids are public
-        tempSeqid.setIsPrivate(Boolean.FALSE);
-
-        // split up the seqid into its prefix and numeric part
-        splitAccession = AccessionLib.splitAccID(accid);
-        tempSeqid.setPrefixPart((String)splitAccession.get(0));
-        tempSeqid.setNumericPart((Integer)splitAccession.get(1));
-
-        // clear for reuse
-        splitAccession.clear();
+        seqid.setIsPrivate(Boolean.FALSE);
 
         // set attributes from Configuration
-        tempSeqid.setLogicalDB(seqLogicalDB);
-        tempSeqid.setMgiType(seqMGIType);
+        seqid.setLogicalDB(seqLogicalDB);
+        seqid.setMgiType(seqMGIType);
 
         // set in SequenceInput
         if(preferred.equals(Boolean.TRUE)) {
-            sequenceInput.setPrimaryAcc(tempSeqid);
+            sequenceInput.setPrimaryAcc(seqid);
         }
         else {
-            sequenceInput.addSecondary(tempSeqid);
+            sequenceInput.addSecondary(seqid);
         }
     }
 }
 
 //  $Log$
+//  Revision 1.1  2003/12/08 18:50:30  sc
+//  initial commit
+//
 
 /**************************************************************************
 *
