@@ -1,3 +1,12 @@
+TAG: gbseqload-3-1-0-5
+DATE: 03/04/2004
+STAFF: sc
+RELEASE: prod
+CHANGES: 
+1) gbseqload.config.default - changed APP_RADAR_MAX=800000000
+         (from 5MB)
+2) /test/data/README - corrected
+
 TAG: gbseqload-3-1-0-4
 DATE: 01/21/2004
 STAFF: sc
