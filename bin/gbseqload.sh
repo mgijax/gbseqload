@@ -137,10 +137,6 @@ shutDown ()
     #
     postload
 
-    #
-    #  Mail the logs to the support staff.
-    #
-    mailLog "GenBank Load" | tee -a ${LOG}
 }
 
 #
