@@ -161,7 +161,7 @@ export INFILE_USE_REGEX INFILE_BUFFERSIZE SEQ_LOAD_MODE SEQ_REPEAT_FILE
 SEQ_VIRTUAL=false
 
 # this load's login value for DB table CreatedBy and ModifiedBy
-JOBSTREAM=genbank_load
+SEQ_JOBSTREAM=genbank_load
 
 # SEQ_Sequence Provider controlled vocab for GenBank 
 SEQ_PROVIDER=GenBank
