@@ -11,6 +11,12 @@ import org.jax.mgi.shr.dla.seqloader.SeqloaderConstants;
 import org.jax.mgi.shr.config.OrganismCheckerCfg;
 import org.jax.mgi.shr.config.ConfigException;
 import org.jax.mgi.shr.exception.MGIException;
+import org.jax.mgi.shr.dla.DLALogger;
+import org.jax.mgi.shr.dla.DLAException;
+import org.jax.mgi.shr.dla.DLAExceptionHandler;
+
+// DEBUG
+import org.jax.mgi.shr.dla.DLALoggingException;
 
 /**
  * @is An object that, given a GenBank sequence record and a set of SeqDeciders
@@ -38,9 +44,9 @@ public class GBOrganismChecker {
     // string to find the classification section of a GenBank format sequence record
     // the following gets between ORGANISM and the *last* REFERENCE, not
     // the first one ... sigh
-    //private String expression = "ORGANISM([\\s\\S]*)REFERENCE";
+    private static final String EXPRESSION = "ORGANISM([\\s\\S]*?)REFERENCE";
     // this one works; all classifications end with a '.'
-    private static final String EXPRESSION = "ORGANISM([^.]+).*";
+    //private static final String EXPRESSION = "ORGANISM([^.]+).*";
 
     // expression as a regular expression
     private Pattern organismPattern;
@@ -63,6 +69,9 @@ public class GBOrganismChecker {
     // Configurator to determine organisms to check
     private OrganismCheckerCfg config;
 
+    // DEBUG
+    //private DLALogger logger;
+
     /**
     * Constructs an OrganismChecker for a given provider with a set of
     * deciders
@@ -74,7 +83,7 @@ public class GBOrganismChecker {
     * @throws An exception if there are no deciders or unsupported provider
     */
 
-    public GBOrganismChecker () throws ConfigException {
+    public GBOrganismChecker () throws ConfigException, DLALoggingException {
         // create a configurator
         config = new OrganismCheckerCfg();
 
@@ -92,6 +101,7 @@ public class GBOrganismChecker {
 
         // compile expression to find the classification section of a record
         organismPattern = Pattern.compile(EXPRESSION, Pattern.MULTILINE);
+        //logger = DLALogger.getInstance();
     }
 
     /**
@@ -125,7 +135,12 @@ public class GBOrganismChecker {
                     break;
                 }
             }
+
         }
+        /*if (isA == false) {
+            logger.logdDebug("Not a valid record: " + record, true);
+        }
+        */
         return isA;
       }
 
@@ -365,10 +380,13 @@ public class GBOrganismChecker {
 
          private boolean isOrganism (String classification, String organism) {
             // get the string expression that is mapped to 'organism'
-            String matchString = (String)expressions.get(organism.toLowerCase());
+            //String matchString = (String)expressions.get(organism.toLowerCase());
 
             // return true if the string expression matches organism of 's'
-            if((classification.toLowerCase()).indexOf(matchString) >  -1) {
+            // don't create the intermediate String
+            //if((classification.toLowerCase()).indexOf(matchString) >  -1) {
+            if((classification.toLowerCase()).indexOf(
+                  (String)expressions.get(organism.toLowerCase())) >  -1) {
                 return true;
             }
             else {
@@ -379,6 +397,9 @@ public class GBOrganismChecker {
 }
 
 //  $Log$
+//  Revision 1.2  2003/12/20 16:31:59  sc
+//  Changed from code review
+//
 //  Revision 1.1  2003/12/17 18:25:40  sc
 //  initial commit
 //
