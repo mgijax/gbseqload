@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-#  $Header
-#  $Name
-#
 #  gbseqload.sh
 ###########################################################################
 #
@@ -18,8 +15,9 @@
 #
 #  Inputs:
 #
-#      - Common configuration file (/usr/local/mgi/etc/common.config.sh)
-#      - GenBank load configuration file (gbseqload.config)
+#      - Common configuration file -
+#		/usr/local/mgi/live/mgiconfig/master.config.sh
+#      - GenBank load configuration file - gbseqload.config
 #      - One or more GenBank input files 
 #
 #  Outputs:
@@ -67,21 +65,14 @@ then
 fi
 
 #
-#  Establish the configuration file names.
+#  Establish the configuration file name.
 #
-CONFIG_COMMON=`pwd`/common.config.sh
 CONFIG_LOAD=`pwd`/gbseqload.config
 echo ${CONFIG_LOAD}
 
 #
-#  Make sure the configuration files are readable.
+#  Make sure the configuration file is readable.
 #
-if [ ! -r ${CONFIG_COMMON} ]
-then
-    echo "Cannot read configuration file: ${CONFIG_COMMON}" | tee -a ${LOG}
-    exit 1
-fi
-
 if [ ! -r ${CONFIG_LOAD} ]
 then
     echo "Cannot read configuration file: ${CONFIG_LOAD}" | tee -a ${LOG}
@@ -89,15 +80,14 @@ then
 fi
 
 #
-# Source the common configuration files
-#
-. ${CONFIG_COMMON}
-
-#
 # Source the GenBank Load configuration files
 #
 . ${CONFIG_LOAD}
 
+#
+#  Establish master configuration file name, we pass this to java
+#
+CONFIG_MASTER=${MGICONFIG}/master.config.sh
 
 echo "javaruntime:${JAVARUNTIMEOPTS}"
 echo "classpath:${CLASSPATH}"
@@ -156,7 +146,7 @@ run ()
     #
     ${APP_CAT_METHOD}  ${APP_INFILES}  | \
 	${JAVA} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} \
-	-DCONFIG=${CONFIG_COMMON},${CONFIG_LOAD} \
+	-DCONFIG=${CONFIG_MASTER},${CONFIG_LOAD} \
 	-DJOBKEY=${JOBKEY} ${DLA_START}
 
     STAT=$?
@@ -195,7 +185,7 @@ then
     APP_INFILES=""
 
     # get input files 
-    APP_INFILES=`${RADARDBUTILSDIR}/bin/getFilesToProcess.csh \
+    APP_INFILES=`${RADAR_DBUTILS}/bin/getFilesToProcess.csh \
 	${RADAR_DBSCHEMADIR} ${JOBSTREAM} ${SEQ_PROVIDER} ${APP_RADAR_MAX}`
     STAT=$?
     if [ ${STAT} -ne 0 ]
@@ -273,7 +263,7 @@ then
     echo "Logging processed files ${FILES_PROCESSED}" | tee -a ${LOG_DIAG}
     for file in ${FILES_PROCESSED}
     do
-	${RADARDBUTILSDIR}/bin/logProcessedFile.csh ${RADAR_DBSCHEMADIR} \
+	${RADAR_DBUTILS}/bin/logProcessedFile.csh ${RADAR_DBSCHEMADIR} \
 	    ${JOBKEY} ${file} ${SEQ_PROVIDER}
 	STAT=$?
 	if [ ${STAT} -ne 0 ]
@@ -326,27 +316,3 @@ shutDown
 
 exit 0
 
-$Log
-
-###########################################################################
-#
-# Warranty Disclaimer and Copyright Notice
-#
-#  THE JACKSON LABORATORY MAKES NO REPRESENTATION ABOUT THE SUITABILITY OR
-#  ACCURACY OF THIS SOFTWARE OR DATA FOR ANY PURPOSE, AND MAKES NO WARRANTIES,
-#  EITHER EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR A
-#  PARTICULAR PURPOSE OR THAT THE USE OF THIS SOFTWARE OR DATA WILL NOT
-#  INFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS, OR OTHER RIGHTS.
-#  THE SOFTWARE AND DATA ARE PROVIDED "AS IS".
-#
-#  This software and data are provided to enhance knowledge and encourage
-#  progress in the scientific community and are to be used only for research
-#  and educational purposes.  Any reproduction or use for commercial purpose
-#  is prohibited without the prior express written permission of The Jackson
-#  Laboratory.
-#
-# Copyright \251 1996, 1999, 2002, 2003 by The Jackson Laboratory
-#
-# All Rights Reserved
-#
-###########################################################################
