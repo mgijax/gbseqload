@@ -18,18 +18,12 @@ then
     export MGICONFIG
 fi
 
-. ${MGICONFIG}/master.config.sh
+# establish name of master config and source it
+CONFIG_MASTER=${MGICONFIG}/master.config.sh
 
-###########################################################################
-#
-#  GENERAL SETTINGS
-#
-###########################################################################
+export CONFIG_MASTER
 
-#  Installation directory for the GenBank sequence load
-INSTALLDIR=${DATALOAD}/gbseqload
-
-export INSTALLDIR
+. ${CONFIG_MASTER}
 
 ###########################################################################
 #
@@ -44,7 +38,7 @@ JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
 
 JAVA_LIB=${MGI_JAVALIB}/core.jar:${MGI_JAVALIB}/dbsmgd.jar:${MGI_JAVALIB}/dbsrdr.jar:${MGI_JAVALIB}/dla.jar
 
-CLASSPATH=.:${INSTALLDIR}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
+CLASSPATH=.:${GBSEQLOAD}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}
 
 export JAVARUNTIMEOPTS JAVA_LIB CLASSPATH
 
@@ -59,7 +53,7 @@ export JAVARUNTIMEOPTS JAVA_LIB CLASSPATH
 #
 
 # Full path the the logs, reports, and archive directories
-FILEDIR=/data/loads/genbank/gbseqload
+FILEDIR=${DATALOADSOUTPUT}/genbank/gbseqload
 
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
@@ -77,7 +71,7 @@ export FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 INFILE_NAME=STDIN
 
 # full path to input file directory when APP_RADAR_INPUT=false
-INPUTDIR=/data/downloads/ftp.ncbi.nih.gov/genbank/gb_daily-nc
+INPUTDIR=${DATADOWNLOADS}/ftp.ncbi.nih.gov/genbank/gb_daily-nc
 
 # full path to input files when APP_RADAR_INPUT=false
 APP_INFILES=${INPUTDIR}/...
@@ -272,19 +266,6 @@ SCP_OUTFILENAME=updates
 export SCP_PATH SCP_PREVENT_EXECUTE SCP_OK_TO_OVERWRITE
 export SCP_FILENAME SCP_SUFFIX SCP_OUTFILENAME SCP_OUTSUFFIX
 
-###########################################################################
-#
-#  MISCELLANEOUS SETTINGS
-#
-###########################################################################
-#  The name of the load for the subject of an email notification
-MAIL_LOADNAME="GenBank Load"
-
-#  Recipient list for mailing the curation log file (comma-separated)
-MAIL_LOG_CUR="sc"
-
-export MAIL_LOADNAME MAIL_LOG_CUR
-
 ##################################################################
 # repeat file processing used when in incremental mode
 ##################################################################
@@ -299,4 +280,22 @@ SEQ_REPEAT_FILE=${OUTPUTDIR}/repeats.out
 APP_REPEAT_TO_PROCESS=${SEQ_REPEAT_FILE}.to.process
 
 export APP_PROCESS_REPEATS SEQ_REPEAT_FILE APP_REPEAT_TO_PROCESS
+
+###########################################################################
+#
+#  MISCELLANEOUS SETTINGS
+#
+###########################################################################
+#  Installation directory for the GenBank sequence load
+INSTALLDIR=${GBSEQLOAD}
+
+export INSTALLDIR
+
+#  The name of the load for the subject of an email notification
+MAIL_LOADNAME="GenBank Load"
+
+#  Recipient list for mailing the curation log file (comma-separated)
+MAIL_LOG_CUR="sc"
+
+export MAIL_LOADNAME MAIL_LOG_CUR
 

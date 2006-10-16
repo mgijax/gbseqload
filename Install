@@ -9,7 +9,7 @@
 # 2) Install 
 #
 
-Usage=Install
+usage=Install
 
 #
 #  Function called when the install fails.
@@ -25,7 +25,7 @@ installFailed ()
 #
 if [ $# -ne 0 ]
 then
-    echo "Usage: ${Usage}"
+    echo "Usage: ${usage}"
     installFailed
 fi
 
@@ -37,7 +37,6 @@ LOAD_CONFIG=gbseqload.config
 
 if [ -r ${LOAD_CONFIG} ]
 then
-    echo "Source ${LOAD_CONFIG}"
     . ${LOAD_CONFIG}
 else
     echo "Cannot source configuration file: ${LOAD_CONFIG}"
