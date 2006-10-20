@@ -1,9 +1,11 @@
+TAG: gbseqload-tr7894-3
 TAG: gbseqload-tr7894-2
 TAG: gbseqload-tr7894-1
-DATE: 10/16/2006
+DATE: 10/20/2006
 STAFF: sc
 RELEASE: prod
 CHANGES: Updated to use mgiconfig
+10/20 - gbseqload.sh -removed 'failed' from messages sent to checkStatus
 
 TAG: gbseqload-tr7894-BP
 DATE: 09/07/2006
