@@ -172,7 +172,7 @@ then
     APP_INFILES=`${RADAR_DBUTILS}/bin/getFilesToProcess.csh \
 	${RADAR_DBSCHEMADIR} ${JOBSTREAM} ${SEQ_PROVIDER} ${APP_RADAR_MAX}`
     STAT=$?
-    checkStatus ${STAT} "getFilesToProcess.csh failed"
+    checkStatus ${STAT} "getFilesToProcess.csh"
 
     # if no input files report and shutdown gracefully
     if [ "${APP_INFILES}" = "" ]
@@ -243,7 +243,7 @@ then
 	${RADAR_DBUTILS}/bin/logProcessedFile.csh ${RADAR_DBSCHEMADIR} \
 	    ${JOBKEY} ${file} ${SEQ_PROVIDER}
 	STAT=$?
-	checkStatus ${STAT} "logProcessedFile.csh failed"
+	checkStatus ${STAT} "logProcessedFile.csh"
     done
     echo 'Done logging processed files' >> ${LOG_DIAG}
 fi
