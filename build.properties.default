@@ -1,2 +1,0 @@
-test.class = org.jax.mgi.app.gbseqloader.TestGBSeqloader
-test.config = testconfig

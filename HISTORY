@@ -1,13 +1,24 @@
+TAG: gbseqload-3-5-1-1
+DATE: 10/24/2006
+STAFF: lec
+CHANGES: merge tr7894 branch
+
+TAG: gbseqload-tr7894-3
+TAG: gbseqload-tr7894-2
+TAG: gbseqload-tr7894-1
+DATE: 10/20/2006
+STAFF: sc
+CHANGES: Updated to use mgiconfig
+10/20 - gbseqload.sh -removed 'failed' from messages sent to checkStatus
+
 TAG: gbseqload-tr7894-BP
 DATE: 09/07/2006
 STAFF: sc
-RELEASE: prod
 CHANGES: Branch point tag for mgiconfig upgrade
 
 TAG: gbseqload-3-1-0-5
 DATE: 03/04/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: 
 1) gbseqload.config.default - changed APP_RADAR_MAX=800000000
          (from 5MB)
@@ -16,7 +27,6 @@ CHANGES:
 TAG: gbseqload-3-1-0-4
 DATE: 01/21/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: Added /data directory containing
          2 bogus test data files designed to cover all Events
          README explaining how to use test files.
@@ -24,7 +34,6 @@ CHANGES: Added /data directory containing
 TAG: gbseqload-3-1-0-3
 DATE: 01/21/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: TR6473
 1) gbseqload.sh - added date echo before each call to qc reports
 2) gbseqload.config.default - added SEQ_QUERY_BATCHSIZE
@@ -32,20 +41,17 @@ CHANGES: TR6473
 TAG: gbseqload-3-1-0-2
 DATE: 12/17/2004
 STAFF: sc
-RELEASE: prod
 CHANGES:tr6365 
 1) gbseqload.config.default - added MS_USE_ASSOC_CLONES_FULL_CACHE=false
 
 TAG: gbseqload-3-1-0-1
 DATE: 12/08/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: tr6392 assembly  branch merge to trunk
 
 TAG: gbseqload-assembly-3
 DATE: 11/19/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: tr6336 
 1) gbseqload.config.default - new common config vars
 
@@ -53,38 +59,32 @@ TAG: gbseqload-assembly-2
 TAG: gbseqload-assembly-1
 DATE: 11/17/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: TR6047 lib_java_dla refactoring
 
 TAG: gbseqload-1-0-22
 DATE: 11/08/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: TR6392
 1) gbseqload.sh - added SEQ_PROVIDER parameter to call to logProcessedFiles
 
 TAG: gbseqload-assembly-BP
 DATE: 11/16/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: branch point tag
 
 TAG: gbseqload-1-0-21
 DATE: 11/08/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: TR5395
 1) See changes since last tag below
 
 DATE: 10/26/2004
 STAFF: mbw
-RELEASE: dev
 CHANGES: added junit tests
 
 TAG: gbseqload-1-0-20
 DATE: 10/22/2004
 STAFF: sc
-RELEASE: dev
 CHANGES: TR5395
 1) index.html - fixed path to a QC report
 2) GBSeqloader - changed name of method getRecordDataIterator() to
@@ -100,7 +100,6 @@ CHANGES:
 TAG: gbseqload-1-0-19
 DATE: 07/14/2004
 STAFF: sc
-RELEASE: production
 CHANGES: TR 5985, 5916, 5925
 
 DATE: 7/12/2004
@@ -112,13 +111,11 @@ CHANGES:
 TAG: gbseqload-1-0-18
 DATE: 07/12/2004
 STAFF: sc
-RELEASE: dev
 CHANGES: 5925 TPA processing
 
 TAG: gbseqload-1-0-17
 DATE: 06/30/2004
 STAFF: sc
-RELEASE: dev
 CHANGES: TR5916, TR5986
 1) README.Install - updated example with correct path to mgietc (etc)
 2) gbseqload.config.defaults - Added overriding of default qc stream by 
@@ -128,7 +125,6 @@ CHANGES: TR5916, TR5986
 TAG: gbseqload-1-0-16
 DATE: 06/30/2004
 STAFF: sc
-RELEASE: dev
 CHANGES: TR5916, TR5986
 1) gbseqload.config.defaults - reversed prefixing for update and mergeSplit 
    SCP vars. DLALoader looks for unprefixed vars to create the update script.
@@ -161,7 +157,6 @@ TAG: gbseqload-1-0-15
 TAG: gbseqload-1-0-14
 DATE: 06/08/2004
 STAFF: sc
-RELEASE: prod
 CHANGES:
 1) gbseqload.config.defaults - updated defaults for processing incrementals
 2) index.html fixed typo in path to input files
@@ -169,7 +164,6 @@ CHANGES:
 TAG: gbseqload-1-0-13
 DATE: 06/08/2004
 STAFF: sc
-RELEASE: prod
 CHANGES:
 1) gbseqload.sh - added check to be sure input files defined
 2) see changes since last tag below
@@ -187,14 +181,12 @@ CHANGES:
 TAG: gbseqload-1-0-12
 DATE: 05/24/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: index.html - removed library from description of QC_MS_NameConflict.rpt
 
 TAG: gbseqload-1-0-11
 TAG: gbseqload-1-0-10
 DATE: 05/18/2004
 STAFF: sc
-RELEASE: prod
 CHANGES: gbseqload.sh - removed call to deleteSequence.csh
 See changes below since last tag
 
@@ -228,7 +220,6 @@ CHANGES: index.html - added reports and logs
 TAG: gbseqload-1-0-9
 DATE: 04/27/2004
 STAFF: sc
-RELEASE:dev
 CHANGES:
 1) see changes since last tag below
 
@@ -261,7 +252,6 @@ CHANGES:
 TAG: gbseqload-1-0-8
 DATE: 04/06/2004
 STAFF: sc
-RELEASE:dev
 CHANGES:
 1) gbseqload.sh and gbseqload.config.defaults - added CAT_METHOD
 2) gbseqload.config.defaults - added SEQ_ prefixing
@@ -284,14 +274,12 @@ CHANGES:
 TAG: gbseqload-1-0-7
 DATE: 03/19/2004
 STAFF: sc
-RELEASE:dev
 CHANGES:
 1) Added incremental processing
 
 TAG: gbseqload-1-0-6
 DATE: 02/27/2004
 STAFF: sc
-RELEASE:
 CHANGES: 
 1) Factored out interpretor and resolver so they may be shared with RefSeq
    Moved factored resolver and interpreter superclasses to lib_java_dla
@@ -303,49 +291,41 @@ CHANGES:
 TAG: gbseqload-1-0-5
 DATE: 02/19/2004
 STAFF: sc
-RELEASE:
 CHANGES: new tag for development build
 1) GBOrganismChecker.java - added debug logging when isValid = false
 
 TAG: gbseqload-1-0-4
 DATE: 02/19/2004
 STAFF: sc
-RELEASE:
 CHANGES: new tag for development build
 1) GBSequenceInterpreter.java - Changed sequence quality for 
    STS division to 'Medium' per requirements
 
 DATE: 02/17/2004
 STAFF: sc
-RELEASE:
 CHANGES: changed import statement for TranslationException, added some debug stuff
 
 DATE: 02/12/2004
 STAFF: sc
-RELEASE:
 CHANGES: gbseqload.config.defaults - removed new line from end of  INFILE_END_DELIMITER=ORIGIN 
 
 TAG: gbseqload-1-0-3
 DATE: 02/11/2004
 STAFF: sc
-RELEASE:
 CHANGES: tag for development build
 
 TAG: gbseqload-1-0-2
 DATE: 01/08/2004
 STAFF: sc
-RELEASE:
 CHANGES: added wrapper script - the beginnings of the jobstream
 
 TAG: gbseqload-1-0-1
 DATE: 01/08/2004
 STAFF: sc
-RELEASE:
 CHANGES: tag of code review changes for gbseqload-slim
 
 TAG: gbseqload-1-0-0
 DATE: 12/08/2003
 STAFF: sc
-RELEASE: 
 CHANGES: initial tag at code review of gbseqload-slim
 
