@@ -1,5 +1,11 @@
+TAG: gbseqload-3-5-4-2
+DATE: 11/26/2007
+STAFF: sc
+CHANGES: set APP_RADAR_MAX to 500000000 - I've updated the config file
+after install til now.
+
 TAG: gbseqload-3-5-4-1
-DATE: 09/27/2006
+DATE: 09/27/2007
 STAFF: sc
 CHANGES: gbseqload.sh - added test for APP_RADAR_INPUT before attempting 
          to log files in radar
