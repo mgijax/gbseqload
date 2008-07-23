@@ -255,9 +255,9 @@ fi
 echo 'Running MSP QC reports' | tee -a ${LOG_DIAG}
 echo "\n`date`" >> ${LOG_DIAG}
 
-${APP_MSP_QCRPT} ${JOBKEY} ${RPTDIR}
-STAT=$?
-checkStatus ${STAT} ${APP_MSP_QCRPT}
+#${APP_MSP_QCRPT} ${JOBKEY} ${RPTDIR}
+#STAT=$?
+#checkStatus ${STAT} ${APP_MSP_QCRPT}
 
 #
 # run seqload qc reports
@@ -265,9 +265,9 @@ checkStatus ${STAT} ${APP_MSP_QCRPT}
 echo 'Running Seqload QC reports' | tee -a ${LOG_DIAG}
 echo "\n`date`" >> ${LOG_DIAG}
 
-${APP_SEQ_QCRPT} ${JOBKEY} ${RPTDIR}
-STAT=$?
-checkStatus ${STAT} ${APP_SEQ_QCRPT}
+#${APP_SEQ_QCRPT} ${JOBKEY} ${RPTDIR}
+#STAT=$?
+#checkStatus ${STAT} ${APP_SEQ_QCRPT}
 
 #
 # run postload cleanup and email logs
