@@ -1,3 +1,9 @@
+TAG: gbseqload-5-1-7-1
+DATE: 01/27/2014
+STAFF: lec
+CHANGES: 
+1) TR11555/TR10841/remove MGI_AttributeHistory from test
+
 TAG: gbseqload-4-2-0-1
 DATE: 02/16/2009
 STAFF: sc

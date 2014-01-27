@@ -22,7 +22,6 @@ public class TestGBSeqloader
   private ACC_AccessionLookup accLookup = null;
   private PRB_SourceLookup srcLookup = null;
   private SEQ_SequenceLookup seqLookup = null;
-  private MGI_AttributeHistoryLookup histLookup = null;
   private SEQ_Source_AssocLookup assocLookup = null;
   private DBSchema schema = null;
 
@@ -57,7 +56,6 @@ public class TestGBSeqloader
     accLookup = new ACC_AccessionLookup();
     srcLookup = new PRB_SourceLookup();
     seqLookup = new SEQ_SequenceLookup();
-    histLookup = new MGI_AttributeHistoryLookup();
     assocLookup = new SEQ_Source_AssocLookup();
     testMgr.resetKey("ACC_Accession");
     testMgr.resetKey("PRB_Source");
@@ -74,7 +72,6 @@ public class TestGBSeqloader
     accLookup = null;
     srcLookup = null;
     seqLookup = null;
-    histLookup = null;
     assocLookup = null;
     super.tearDown();
   }
@@ -97,13 +94,10 @@ public class TestGBSeqloader
     assertEquals(0, testMgr.countObjects("PRB_Source"));
     assertEquals(0, testMgr.countObjects("SEQ_Source_Assoc"));
     assertEquals(0, testMgr.countObjects("SEQ_Sequence"));
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
 
     gBSeqloader.load();
 
     // check database against expected results
-
-    assertEquals(14, testMgr.countObjects("MGI_AttributeHistory"));
 
     dropTriggers();
 
@@ -168,82 +162,6 @@ public class TestGBSeqloader
     assertTrue(nav.next());
     testMgr.deleteObject((SEQ_SequenceDAO)nav.getCurrent());
 
-    MGI_AttributeHistoryState histState = new MGI_AttributeHistoryState();
-    histState.setObjectKey(new Integer(1));
-    histState.setMGITypeKey(new Integer(5));
-    histState.setColumnName("_CellLine_Key");
-    histState.setCreatedByKey(new Integer(1));
-    histState.setModifiedByKey(new Integer(1));
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Gender_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Organism_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Refs_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_SegmentType_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Strain_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Tissue_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_Vector_Key");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("age");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("ageMax");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("ageMin");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("description");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("name");
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
-    histState.setColumnName("_SequenceType_key");
-    histState.setMGITypeKey(new Integer(19));
-    nav = histLookup.findByState(histState);
-    assertTrue(nav.next());
-    testMgr.deleteObject((MGI_AttributeHistoryDAO)nav.getCurrent());
-
     createTriggers();
 
   }
@@ -266,7 +184,6 @@ public class TestGBSeqloader
     assertEquals(0, testMgr.countObjects("PRB_Source"));
     assertEquals(0, testMgr.countObjects("SEQ_Source_Assoc"));
     assertEquals(0, testMgr.countObjects("SEQ_Sequence"));
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
 
     dropTriggers();
 
@@ -338,7 +255,6 @@ public class TestGBSeqloader
     assertTrue(seqLookup.findByState(seqState).next());
     assertTrue(assocLookup.findByState(assocState).next());
 
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
     assertEquals(1, testMgr.countObjects("ACC_Accession"));
     assertEquals(1, testMgr.countObjects("PRB_Source"));
     assertEquals(1, testMgr.countObjects("SEQ_Source_Assoc"));
@@ -371,7 +287,6 @@ public class TestGBSeqloader
     assertEquals(0, testMgr.countObjects("PRB_Source"));
     assertEquals(0, testMgr.countObjects("SEQ_Source_Assoc"));
     assertEquals(0, testMgr.countObjects("SEQ_Sequence"));
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
 
     dropTriggers();
 
@@ -454,7 +369,6 @@ public class TestGBSeqloader
     assertTrue(seqLookup.findByState(seqState).next());
     assertTrue(assocLookup.findByState(assocState).next());
 
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
     assertEquals(1, testMgr.countObjects("ACC_Accession"));
     assertEquals(1, testMgr.countObjects("PRB_Source"));
     assertEquals(1, testMgr.countObjects("SEQ_Source_Assoc"));
@@ -487,7 +401,6 @@ public class TestGBSeqloader
     assertEquals(0, testMgr.countObjects("PRB_Source"));
     assertEquals(0, testMgr.countObjects("SEQ_Source_Assoc"));
     assertEquals(0, testMgr.countObjects("SEQ_Sequence"));
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
 
     dropTriggers();
 
@@ -572,7 +485,6 @@ public class TestGBSeqloader
     assertTrue(assocLookup.findByState(assocState).next());
 
     // should there be a record here since we updated the sequence type?
-    assertEquals(0, testMgr.countObjects("MGI_AttributeHistory"));
     assertEquals(1, testMgr.countObjects("ACC_Accession"));
     assertEquals(1, testMgr.countObjects("PRB_Source"));
     assertEquals(1, testMgr.countObjects("SEQ_Source_Assoc"));
@@ -599,7 +511,6 @@ public class TestGBSeqloader
     FileUtility.delete("SEQ_Sequence.bcp");
     FileUtility.delete("SEQ_Source_Assoc.bcp");
     FileUtility.delete("PRB_Source.bcp");
-    FileUtility.delete("MGI_AttributeHistory.bcp");
     FileUtility.delete("updates.sql");
     FileUtility.delete("updates.out");
   }
