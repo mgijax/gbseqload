@@ -8,7 +8,7 @@
    -->
    <property environment="env"/>
    <property name="jar.name" value="gbseqload"/>
-   <property name="classpath" value="${env.MGI_JAVALIB}/core.jar:${env.MGI_JAVALIB}/dbsmgd.jar:${env.MGI_JAVALIB}/dbsrdr.jar:${env.MGI_JAVALIB}/dla.jar:${env.JCONNECT}:${env.SHARELIB}/junit.jar"/>
+   <property name="classpath" value="${env.MGI_JAVALIB}/core.jar:${env.MGI_JAVALIB}/dbsmgd.jar:${env.MGI_JAVALIB}/dbsrdr.jar:${env.MGI_JAVALIB}/dla.jar:${env.SHARELIB}/junit.jar:${env.JCONNECT}"/>
 
    <!-- Import the universal targets.
    -->
@@ -22,6 +22,10 @@
 
   <target name="test" depends="compile.test">
    <junit>
+	<classpath>
+	  <pathelement path="${classpath}"/>
+          <pathelement path="${classes.dir}"/>
+	</classpath>
 	<formatter type="plain" usefile="false" />
 	<formatter type="plain" />
 	<batchtest>
