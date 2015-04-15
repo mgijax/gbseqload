@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs unit tests for gbseqload
+
+source gbseqload.config
+
+${ANT} test

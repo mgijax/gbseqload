@@ -8,7 +8,7 @@
    -->
    <property environment="env"/>
    <property name="jar.name" value="gbseqload"/>
-   <property name="classpath" value="${env.MGI_JAVALIB}/core.jar:${env.MGI_JAVALIB}/dbsmgd.jar:${env.MGI_JAVALIB}/dbsrdr.jar:${env.MGI_JAVALIB}/dla.jar:${env.JCONNECT}"/>
+   <property name="classpath" value="${env.MGI_JAVALIB}/core.jar:${env.MGI_JAVALIB}/dbsmgd.jar:${env.MGI_JAVALIB}/dbsrdr.jar:${env.MGI_JAVALIB}/dla.jar:${env.JCONNECT}:${env.SHARELIB}/junit.jar"/>
 
    <!-- Import the universal targets.
    -->
@@ -19,4 +19,15 @@
    <target name="buildall" description="Executes task 'all'"
            depends="all, link">
    </target>
+
+  <target name="test" depends="compile.test">
+   <junit>
+	<formatter type="plain" usefile="false" />
+	<formatter type="plain" />
+	<batchtest>
+	    <fileset dir="${classes.dir}" includes="**/Test*.class" />
+	</batchtest>
+    </junit> 
+  </target>
+
 </project>
