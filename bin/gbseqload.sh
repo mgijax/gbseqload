@@ -219,7 +219,7 @@ then
 	mv ${SEQ_REPEAT_FILE} ${APP_REPEAT_TO_PROCESS}
 
 	# set the cat method
-	APP_CAT_METHOD=/usr/bin/cat
+	APP_CAT_METHOD=cat
 
 	# set the input file name
 	APP_INFILES=${APP_REPEAT_TO_PROCESS}
