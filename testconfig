@@ -1,20 +1,20 @@
-DBSERVER			DEV_MGI
-DBNAME				mbw_test
-DBURL				rohan.informatics.jax.org:4100
+DBSERVER			mgi-testdb4
+DBNAME				kstone_export
+DBURL				mgi-testdb4:kstone_export
 DBUSER				mgd_dbo
-DBPASSWORDFILE			/home/mbw/.mgd_dbo_password
-DBSCHEMADIR			/home/mbw/sandbox/mgddbschema
+DBPASSWORDFILE			/usr/local/mgi/kstone/dbutils/pgdbutilities/.pgpass_1
+DBSCHEMADIR			/usr/local/mgi/kstone/dbutils/mgd/pgmgddbschema
 
-MGD_DBSERVER			DEV_MGI
-MGD_DBNAME			mbw_test
-MGD_DBURL			rohan.informatics.jax.org:4100
-MGD_DBUSER			mgd_dbo
-MGD_DBPASSWORDFILE		/home/mbw/.mgd_dbo_password
-MGD_DBSCHEMADIR			/home/mbw/sandbox/mgddbschema
+MGD_DBSERVER			mgi-testdb4
+MGD_DBNAME				kstone_export
+MGD_DBURL				mgi-testdb4:kstone_export
+MGD_DBUSER				mgd_dbo
+MGD_DBPASSWORDFILE			/usr/local/mgi/kstone/dbutils/pgdbutilities/.pgpass_1
+MGD_DBSCHEMADIR			/usr/local/mgi/kstone/dbutils/mgd/pgmgddbschema
 
-RADAR_DBSERVER			DEV_MGI
-RADAR_DBNAME			radar
-RADAR_DBURL			rohan.informatics.jax.org:4100
-RADAR_DBUSER			mgd_dbo
-RADAR_DBPASSWORDFILE		/home/mbw/.mgd_dbo_password
-RADAR_DBSCHEMADIR		/home/mbw/sandbox/mgddbschema
+RADAR_DBSERVER			mgi-testdb4
+RADAR_DBNAME				kstone_export
+RADAR_DBURL				mgi-testdb4:kstone_export
+RADAR_DBUSER				mgd_dbo
+RADAR_DBPASSWORDFILE			/usr/local/mgi/kstone/dbutils/pgdbutilities/.pgpass_1
+RADAR_DBSCHEMADIR			/usr/local/mgi/kstone/dbutils/mgd/pgmgddbschema
