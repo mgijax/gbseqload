@@ -31,7 +31,6 @@
 #      - Exceptions written to standard error
 #      - Configuration and initialization errors are written to a log file
 #        for the shell script
-#      - QC reports as defined by ${APP_SEQ_QCRPT} and ${APP_MSP_QCRPT}
 #
 #  Exit Codes:
 #
@@ -44,6 +43,9 @@
 #  Implementation:  
 #
 #  Notes:  None
+#
+# 5/5/2015 - sc
+#	removed call to all QC reports
 #
 ###########################################################################
 
@@ -219,7 +221,7 @@ then
 	mv ${SEQ_REPEAT_FILE} ${APP_REPEAT_TO_PROCESS}
 
 	# set the cat method
-	APP_CAT_METHOD=cat
+	APP_CAT_METHOD=/usr/bin/cat
 
 	# set the input file name
 	APP_INFILES=${APP_REPEAT_TO_PROCESS}
@@ -248,29 +250,6 @@ then
     done
     echo 'Done logging processed files' >> ${LOG_DIAG}
 fi
-
-#
-# run msp qc reports
-#
-
-echo 'Running MSP QC reports' | tee -a ${LOG_DIAG}
-echo "" >> ${LOG_DIAG}
-echo "`date`" >> ${LOG_DIAG}
-
-${APP_MSP_QCRPT} ${JOBKEY} ${RPTDIR}
-STAT=$?
-checkStatus ${STAT} ${APP_MSP_QCRPT}
-
-#
-# run seqload qc reports
-#
-echo 'Running Seqload QC reports' | tee -a ${LOG_DIAG}
-echo "" >> ${LOG_DIAG}
-echo "`date`" >> ${LOG_DIAG}
-
-${APP_SEQ_QCRPT} ${JOBKEY} ${RPTDIR}
-STAT=$?
-checkStatus ${STAT} ${APP_SEQ_QCRPT}
 
 #
 # run postload cleanup and email logs

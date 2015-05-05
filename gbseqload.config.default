@@ -77,7 +77,7 @@ INPUTDIR=${DATADOWNLOADS}/ftp.ncbi.nih.gov/genbank/gb_daily-nc
 APP_INFILES=${INPUTDIR}/...
 
 # how files are piped to the application
-APP_CAT_METHOD="gunzip -c"
+APP_CAT_METHOD="/usr/local/bin/gunzip -c"
 
 export INFILE_NAME INPUTDIR APP_INFILES APP_CAT_METHOD
 
@@ -119,14 +119,6 @@ DLA_QC_STREAM=org.jax.mgi.shr.dbutils.dao.BCP_Stream
 DLA_DB_PREFIX=MGD
 
 export DLA_LOAD_STREAM DLA_RADAR_STREAM DLA_DB_PREFIX
-
-# seqloader QC report script
-APP_SEQ_QCRPT=${QCRPTS}/seqload/runQC.csh
-
-# molecular source processor QC report script
-APP_MSP_QCRPT=${QCRPTS}/msp/runQC.csh
-
-export APP_SEQ_QCRPT APP_MS_QCRPT
 
 # incremental, incremental_initial, or delete_reload
 # incremental_initial uses no event detections - add only
