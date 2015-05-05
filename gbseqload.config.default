@@ -120,14 +120,6 @@ DLA_DB_PREFIX=MGD
 
 export DLA_LOAD_STREAM DLA_RADAR_STREAM DLA_DB_PREFIX
 
-# seqloader QC report script
-APP_SEQ_QCRPT=${QCRPTS}/seqload/runQC.csh
-
-# molecular source processor QC report script
-APP_MSP_QCRPT=${QCRPTS}/msp/runQC.csh
-
-export APP_SEQ_QCRPT APP_MS_QCRPT
-
 # incremental, incremental_initial, or delete_reload
 # incremental_initial uses no event detections - add only
 SEQ_LOAD_MODE=incremental
