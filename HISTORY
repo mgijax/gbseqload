@@ -1,3 +1,9 @@
+TAG: gbseqload-5-2-1-2
+DATE: 05/05/2015
+STAFF: sc
+CHANGES:
+* gbseqload.config.default - APP_CAT_METHOD="gunzip -c". Removed /usr/local/bin
+
 TAG: gbseqload-5-2-1-1
 DATE: 05/05/2015
 STAFF: sc
