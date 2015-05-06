@@ -1,6 +1,12 @@
+TAG: gbseqload-tr11750-2
+DATE: 05/06/2015
+STAFF: sc
+CHANGES: gbseqload.config.default - change APP_CAT_METHOD='gunzip -c'
+i.e. remove full path to gunzip
+
 TAG: gbseqload-tr11750-1
 DATE: 05/05/2015
-STAFF: k
+STAFF: sc
 CHANGES: 
 * gbseqload.config.default - removed QC report config
 * gbseqload.sh - removed calls to QC reports
