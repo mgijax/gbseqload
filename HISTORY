@@ -1,3 +1,8 @@
+TAG: gbseqload-tr11750-3
+DATE: 06/26/2015
+STAFF: sc
+CHANGES: set JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
+
 TAG: gbseqload-tr11750-2
 DATE: 05/06/2015
 STAFF: sc
