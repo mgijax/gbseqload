@@ -34,8 +34,7 @@ export CONFIG_MASTER
 # allow 1.5 initial and max heap memory - note this is the max for which
 # the loader will run since child processes (e.g. isql exec of sql files)
 # need memory from the parent process (2G max given to a process by the op sys)
-JAVARUNTIMEOPTS="-Xms1500m -Xmx1500m"
-
+JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
 JAVA_LIB=${MGI_JAVALIB}/core.jar:${MGI_JAVALIB}/dbsmgd.jar:${MGI_JAVALIB}/dbsrdr.jar:${MGI_JAVALIB}/dla.jar
 
 CLASSPATH=.:${GBSEQLOAD}/gbseqload.jar:${JAVA_LIB}:${COMMON_CLASSPATH}

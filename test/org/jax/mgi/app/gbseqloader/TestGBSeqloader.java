@@ -134,8 +134,8 @@ public class TestGBSeqloader
     srcState.setGenderKey(new Integer(315167));
     srcState.setCellLineKey(new Integer(316335));
     srcState.setAge("Not Resolved");
-    srcState.setAgeMin(new Float(-1.0));
-    srcState.setAgeMax(new Float(-1.0));
+    srcState.setAgeMin(new Double(-1.0));
+    srcState.setAgeMax(new Double(-1.0));
     srcState.setIsCuratorEdited(new Boolean(false));
     nav = srcLookup.findByState(srcState);
     assertTrue(nav.next());
@@ -152,11 +152,11 @@ public class TestGBSeqloader
     seqState.setVersion("2");
     seqState.setDivision("ROD");
     seqState.setVirtual(new Boolean(false));
-    seqState.setRawType("mRNA");
-    seqState.setRawLibrary(null);
-    seqState.setRawTissue("liver");
-    seqState.setRawAge("dpc 14.5");
-    seqState.setRawOrganism("Mus musculus");
+    //seqState.setRawtype("mRNA");
+    //seqState.setRawlibrary(null);
+    //seqState.setRawtissue("liver");
+    //seqState.setRawage("dpc 14.5");
+    //seqState.setRaworganism("Mus musculus");
     seqState.setNumberOfOrganisms(new Integer(0));
     nav = seqLookup.findByState(seqState);
     assertTrue(nav.next());
@@ -217,8 +217,8 @@ public class TestGBSeqloader
     srcState.setGenderKey(new Integer(315167));
     srcState.setCellLineKey(new Integer(316335));
     srcState.setAge("Not Resolved");
-    srcState.setAgeMin(new Float(-1.0));
-    srcState.setAgeMax(new Float(-1.0));
+    srcState.setAgeMin(new Double(-1.0));
+    srcState.setAgeMax(new Double(-1.0));
     srcState.setIsCuratorEdited(new Boolean(false));
     testMgr.stageData(new PRB_SourceDAO(srcState));
 
@@ -233,11 +233,11 @@ public class TestGBSeqloader
     seqState.setVersion("2");
     seqState.setDivision("ROD");
     seqState.setVirtual(new Boolean(false));
-    seqState.setRawType("mRNA");
-    seqState.setRawLibrary(null);
-    seqState.setRawTissue("liver");
-    seqState.setRawAge("dpc 14.5");
-    seqState.setRawOrganism("Mus musculus");
+    //seqState.setRawtype("mRNA");
+    //seqState.setRawlibrary(null);
+    //seqState.setRawtissue("liver");
+    //seqState.setRawage("dpc 14.5");
+    //seqState.setRaworganism("Mus musculus");
     seqState.setNumberOfOrganisms(new Integer(0));
     seqState.setSeqrecordDate(new Timestamp(new Date().getTime()));
     seqState.setSequenceDate(new Timestamp(new Date().getTime()));
@@ -320,8 +320,8 @@ public class TestGBSeqloader
     srcState.setGenderKey(new Integer(315167));
     srcState.setCellLineKey(new Integer(316335));
     srcState.setAge("Not Resolved");
-    srcState.setAgeMin(new Float(-1.0));
-    srcState.setAgeMax(new Float(-1.0));
+    srcState.setAgeMin(new Double(-1.0));
+    srcState.setAgeMax(new Double(-1.0));
     srcState.setIsCuratorEdited(new Boolean(false));
     testMgr.stageData(new PRB_SourceDAO(srcState));
 
@@ -336,11 +336,11 @@ public class TestGBSeqloader
     seqState.setVersion("1");
     seqState.setDivision("ROD");
     seqState.setVirtual(new Boolean(false));
-    seqState.setRawType("mRNA");
-    seqState.setRawLibrary(null);
-    seqState.setRawTissue("liver");
-    seqState.setRawAge("dpc 14.5");
-    seqState.setRawOrganism("Mus musculus");
+    //seqState.setRawType("mRNA");
+    //seqState.setRawLibrary(null);
+    //seqState.setRawTissue("liver");
+    //seqState.setRawAge("dpc 14.5");
+    //seqState.setRawOrganism("Mus musculus");
     seqState.setNumberOfOrganisms(new Integer(0));
     Calendar seqRecDate = new GregorianCalendar(1965, Calendar.DECEMBER, 25);
     seqState.setSeqrecordDate(new Timestamp(seqRecDate.getTime().getTime()));
@@ -427,8 +427,8 @@ public class TestGBSeqloader
     srcState.setGenderKey(new Integer(315167));
     srcState.setCellLineKey(new Integer(316335));
     srcState.setAge("Not Resolved");
-    srcState.setAgeMin(new Float(-1.0));
-    srcState.setAgeMax(new Float(-1.0));
+    srcState.setAgeMin(new Double(-1.0));
+    srcState.setAgeMax(new Double(-1.0));
     srcState.setIsCuratorEdited(new Boolean(false));
     testMgr.stageData(new PRB_SourceDAO(srcState));
 
@@ -443,11 +443,11 @@ public class TestGBSeqloader
     seqState.setVersion("2");
     seqState.setDivision("ROD");
     seqState.setVirtual(new Boolean(false));
-    seqState.setRawType("DNA");
-    seqState.setRawLibrary(null);
-    seqState.setRawTissue("liver");
-    seqState.setRawAge("dpc 14.5");
-    seqState.setRawOrganism("Mus musculus");
+    //seqState.setRawType("DNA");
+    //seqState.setRawLibrary(null);
+    //seqState.setRawTissue("liver");
+    //seqState.setRawAge("dpc 14.5");
+    //seqState.setRawOrganism("Mus musculus");
     seqState.setNumberOfOrganisms(new Integer(0));
     Calendar seqRecDate = new GregorianCalendar(1965, Calendar.DECEMBER, 25);
     seqState.setSeqrecordDate(new Timestamp(seqRecDate.getTime().getTime()));
@@ -469,7 +469,7 @@ public class TestGBSeqloader
 
     // prepare seqState for querying
     // this is what we expect the program to have done to the data
-    seqState.setRawType("mRNA");
+    //seqState.setRawType("mRNA");
     seqState.setSequenceTypeKey(new Integer(316346));
     seqRecDate = new GregorianCalendar(2002, Calendar.JANUARY, 16);
     seqState.setSeqrecordDate(new Timestamp(seqRecDate.getTime().getTime()));

@@ -11,6 +11,25 @@ CHANGES:
 * gbseqload.config.default - removed QC report config
 * gbseqload.sh - removed calls to QC reports
 
+TAG: gbseqload-tr11750-3
+DATE: 06/26/2015
+STAFF: sc
+CHANGES: set JAVARUNTIMEOPTS="-Xms2G -Xmx2G"
+
+TAG: gbseqload-tr11750-2
+DATE: 05/06/2015
+STAFF: sc
+CHANGES: gbseqload.config.default - change APP_CAT_METHOD='gunzip -c'
+i.e. remove full path to gunzip
+
+TAG: gbseqload-tr11750-1
+DATE: 05/05/2015
+STAFF: sc
+CHANGES: 
+* gbseqload.config.default - removed QC report config
+* gbseqload.sh - removed calls to QC reports
+* Any changes that Kevin has made on this branch
+
 TAG: gbseqload-tr11750-BP
 DATE: 04/15/2015
 STAFF: kstone

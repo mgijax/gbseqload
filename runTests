@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Runs unit tests for gbseqload
+#
+# Pulls database info from testconfig
+#
+
+source gbseqload.config
+
+${ANT} test
