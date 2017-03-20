@@ -1,3 +1,11 @@
+TAG: gbseqload-tr12488-1
+DATE: 03/20/2017
+STAFF: sc
+CHANGES: MOUSE CRISPIES project Contigs epic
+1) GBSeqloader.java - use GBInputFile instead of GBInputFileNoSeq
+    because niether refseq or genbank contigs have the ORIGIN section so
+    we will now parse the entire record.
+
 TAG: gbseqload-6-0-4-1
 DATE: 06/16/2016
 STAFF: lec 
